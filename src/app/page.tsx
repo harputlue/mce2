@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useState, useRef } from 'react';
-import domtoimage from 'dom-to-image';
 
 export default function Home() {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -85,6 +84,9 @@ export default function Home() {
     if (!downloadRef.current) return;
     
     try {
+      // Dynamic import to avoid SSR issues
+      const domtoimage = (await import('dom-to-image')).default;
+
       console.log("MCE v3.0 Engine: Starting high-fidelity capture...");
       const dataUrl = await domtoimage.toPng(downloadRef.current, {
         quality: 1.0,
@@ -108,7 +110,7 @@ export default function Home() {
       <div className="max-w-3xl w-full">
         <header className="text-center mb-12 relative">
           <div className="absolute -top-8 left-1/2 -translate-x-1/2">
-            <span className="bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-4 py-1 rounded-full text-[10px] font-black tracking-[0.3em] uppercase animate-pulse shadow-[0_0_15px_rgba(16,185,129,0.1)]">
+            <span className="bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-4 py-1 rounded-full text-[10px] font-black tracking-[0.3em] uppercase animate-pulse shadow-[0px_0px_15px_rgba(16,185,129,0.2)]">
               v3.4 FINAL PIXEL ENGINE ACTIVE
             </span>
           </div>
