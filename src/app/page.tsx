@@ -178,7 +178,20 @@ export default function Home() {
               <div ref={downloadRef} className="relative rounded-2xl overflow-hidden border-4 border-slate-900 shadow-2xl bg-black select-none">
                 <img src={previewUrl!} className="w-full h-auto object-contain block" alt="Result original" crossOrigin="anonymous" />
                 
-                {/* AI Tarafından Belirlenen Mekanik Tambur Katmanı */}
+                {/* Noise Filter for Texture Mapping */}
+                <svg className="hidden">
+                  <filter id="noiseFilter">
+                    <feTurbulence type="fractalNoise" baseFrequency="0.6" numOctaves="3" stitchTiles="stitch" />
+                    <feColorMatrix type="saturate" values="0" />
+                    <feComponentTransfer>
+                      <feFuncR type="linear" slope="0.2" />
+                      <feFuncG type="linear" slope="0.2" />
+                      <feFuncB type="linear" slope="0.2" />
+                    </feComponentTransfer>
+                  </filter>
+                </svg>
+
+                {/* AI Tarafından Belirlenen Mekanik Tambur Katmanı (Tamamen Kapalı) */}
                 <div 
                   style={{
                     position: 'absolute',
@@ -191,43 +204,58 @@ export default function Home() {
                     alignItems: 'center',
                     justifyContent: 'center',
                     pointerEvents: 'none',
-                    backgroundColor: result.renderStyle?.bgTone === 'white' ? 'rgba(255,255,255,0.9)' : 'rgba(10,10,10,0.85)',
-                    boxShadow: 'inset 0 0 10px rgba(0,0,0,1)',
+                    // Altındaki rakamı tamamen gizlemek için tam opak (alpha 1)
+                    backgroundColor: result.renderStyle?.bgTone === 'white' ? '#f5f5f5' : '#121212',
+                    boxShadow: 'inset 0 0 15px rgba(0,0,0,1), 0 0 5px rgba(0,0,0,0.5)',
                   }}
-                  className="overflow-hidden rounded-sm"
+                  className="overflow-hidden rounded-[2px]"
                 >
+                  {/* Texture Overlay (Gürültü/Noise) - Fotoğraf dokusuna uyum için */}
+                  <div className="absolute inset-0 opacity-20 pointer-events-none" style={{ filter: 'url(#noiseFilter)', mixBlendMode: 'overlay' }} />
+
                   <div style={{
                     display: 'flex',
                     width: '100%',
                     height: '100%',
-                    filter: `blur(${result.renderStyle?.blur || 0.3}px) brightness(${result.renderStyle?.brightness || 1}) contrast(1.1)`,
-                    mixBlendMode: result.renderStyle?.bgTone === 'white' ? 'multiply' : 'screen',
-                    padding: '0 2px'
+                    filter: `blur(${result.renderStyle?.blur || 0.2}px) brightness(${result.renderStyle?.brightness || 1}) contrast(1.1)`,
+                    // mixBlendMode 'normal' yapıyoruz ki altındaki harf kesinlikle gözükmesin
+                    padding: '0 1px'
                   }}>
-                    {result.finalReading.toFixed(3).replace('.', ',').split('').map((char: string, idx: number) => (
-                      <div 
-                        key={idx}
-                        style={{
-                          flex: 1,
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          borderRight: idx < result.finalReading.toFixed(3).length - 1 ? '1px solid rgba(128,128,128,0.2)' : 'none',
-                          color: char === ',' ? (result.renderStyle?.bgTone === 'white' ? 'black' : 'white') : (idx > result.finalReading.toFixed(3).length - 4 ? '#e11d48' : (result.renderStyle?.color || '#ffffff')),
-                          background: char === ',' ? 'transparent' : (idx > result.finalReading.toFixed(3).length - 4 ? 'rgba(255,0,0,0.05)' : 'none'),
-                          fontSize: 'min(2.5vw, 22px)',
-                          fontFamily: 'monospace',
-                          fontWeight: '900',
-                          textShadow: '1px 1px 1px rgba(0,0,0,0.5)',
-                          position: 'relative',
-                        }}
-                      >
-                        {/* Tambur Gölgelendirmesi (Üst ve Alt) */}
-                        <div className="absolute inset-x-0 top-0 h-1/4 bg-gradient-to-b from-black/40 to-transparent pointer-events-none" />
-                        <div className="absolute inset-x-0 bottom-0 h-1/4 bg-gradient-to-t from-black/40 to-transparent pointer-events-none" />
-                        {char}
-                      </div>
-                    ))}
+                    {result.finalReading.toFixed(3).replace('.', ',').split('').map((char: string, idx: number) => {
+                      const isComma = char === ',';
+                      const isDecimal = idx > result.finalReading.toFixed(3).length - 4;
+                      return (
+                        <div 
+                          key={idx}
+                          style={{
+                            flex: isComma ? '0.3' : '1',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            // Tambur arası fiziksel boşluklar
+                            borderRight: (!isComma && idx < result.finalReading.toFixed(3).length - 1) ? '1.5px solid rgba(0,0,0,0.8)' : 'none',
+                            color: isComma ? (result.renderStyle?.bgTone === 'white' ? '#000' : '#fff') : (isDecimal ? '#ff1e1e' : (result.renderStyle?.color || '#ffffff')),
+                            // Ondalık hanelerin (kırmızı olanlar) arka plan dokusu
+                            background: isComma ? 'transparent' : (isDecimal ? (result.renderStyle?.bgTone === 'white' ? '#fff0f0' : '#1a0000') : 'none'),
+                            fontSize: 'min(2.8vw, 24px)',
+                            fontFamily: '"Courier New", Courier, monospace', // Mekanik görünümlü font
+                            fontWeight: '900',
+                            textShadow: result.renderStyle?.bgTone === 'white' ? 'none' : '0 0 1px rgba(255,255,255,0.3)',
+                            position: 'relative',
+                            zIndex: 1,
+                          }}
+                        >
+                          {/* Tambur Gölgelendirmesi (Üst ve Alt) */}
+                          {!isComma && (
+                            <>
+                              <div className="absolute inset-x-0 top-0 h-1/3 bg-gradient-to-b from-black/60 to-transparent pointer-events-none z-10" />
+                              <div className="absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-black/60 to-transparent pointer-events-none z-10" />
+                            </>
+                          )}
+                          <span style={{ transform: 'scaleY(1.1)' }}>{char}</span>
+                        </div>
+                      );
+                    })}
                   </div>
                 </div>
 
