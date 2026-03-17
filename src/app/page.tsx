@@ -241,55 +241,61 @@ export default function Home() {
                     alignItems: 'center',
                     justifyContent: 'center',
                     pointerEvents: 'none',
-                    // Altındaki rakamı tamamen gizlemek için tam opak (alpha 1)
-                    backgroundColor: result.renderStyle?.bgTone === 'white' ? '#fcfcfc' : '#111111',
-                    boxShadow: 'inset 0 0 15px rgba(0,0,0,1), 0 0 4px rgba(0,0,0,0.4)',
-                    overflow: 'hidden',
+                    zIndex: 20,
                   }}
                   className="rounded-[1px]"
                 >
-                  {/* Texture Overlay (Gürültü/Noise) - Fotoğraf dokusuna uyum için */}
-                  <div className="absolute inset-0 opacity-25 pointer-events-none" style={{ filter: 'url(#noiseFilter)', mixBlendMode: 'overlay' }} />
-
                   <div style={{
                     display: 'flex',
                     width: '100%',
                     height: '100%',
-                    filter: `blur(${result.renderStyle?.blur || 0.2}px) brightness(${result.renderStyle?.brightness || 1}) contrast(1.1)`,
-                    padding: '0 1px'
+                    filter: `blur(${result.renderStyle?.blur || 0.15}px) brightness(${result.renderStyle?.brightness || 1}) contrast(1.2)`,
+                    gap: '1px'
                   }}>
                     {result.finalReading.toFixed(3).replace('.', ',').split('').map((char: string, idx: number) => {
                       const isComma = char === ',';
                       const isDecimal = idx > result.finalReading.toFixed(3).length - 4;
+                      
                       return (
                         <div 
                           key={idx}
                           style={{
-                            flex: isComma ? '0.4' : '1',
+                            flex: isComma ? '0.3' : '1',
                             display: 'flex',
                             alignItems: 'center',
                             justifyContent: 'center',
-                            // Tambur arası fiziksel dar boşluklar
-                            borderRight: (!isComma && idx < result.finalReading.toFixed(3).length - 1) ? '1px solid rgba(0,0,0,0.95)' : 'none',
-                            color: isComma ? (result.renderStyle?.bgTone === 'white' ? '#111' : '#eee') : (isDecimal ? '#ea2626' : (result.renderStyle?.color || '#eeeeee')),
-                            // Ondalık hanelerin (kırmızı olanlar) arka plan dokusu
-                            background: isComma ? 'transparent' : (isDecimal ? (result.renderStyle?.bgTone === 'white' ? '#fff0f0' : '#1a0000') : 'none'),
-                            fontSize: 'min(2.8vw, 24px)',
-                            fontFamily: '"Courier New", Courier, monospace',
-                            fontWeight: '900',
-                            textShadow: result.renderStyle?.bgTone === 'white' ? 'none' : '0 0 1px rgba(255,255,255,0.2)',
                             position: 'relative',
-                            zIndex: 1,
+                            // Rakamın kendi arka planı (Kutu görüntüsünü yok etmek için her haneye özel zemin)
+                            backgroundColor: isComma ? 'transparent' : (isDecimal ? '#b91c1c' : '#0a0a0a'),
+                            borderRadius: '1px',
+                            boxShadow: isComma ? 'none' : 'inset 0 0 8px rgba(0,0,0,0.8), 0 1px 2px rgba(0,0,0,0.5)',
+                            overflow: 'hidden'
                           }}
                         >
-                          {/* Tambur Gölgelendirmesi - 3D Silindir Hissi */}
+                          {/* Tambur Doku ve Işık Efektleri */}
                           {!isComma && (
-                            <>
-                              <div className="absolute inset-x-0 top-0 h-1/3 bg-gradient-to-b from-black/70 to-transparent pointer-events-none z-10" />
-                              <div className="absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-black/70 to-transparent pointer-events-none z-10" />
-                            </>
+                            <div className="absolute inset-0 z-0">
+                               {/* Üst ve Alt Gölgeler (Tambur Yuvarlaklığı için) */}
+                              <div className="absolute inset-x-0 top-0 h-1/2 bg-gradient-to-b from-black/80 via-black/20 to-transparent" />
+                              <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+                              {/* Kir/Toz Katmanı (Fotoğraf dokusuyla uyum) */}
+                              <div className="absolute inset-0 opacity-30 mix-blend-overlay" style={{ filter: 'url(#noiseFilter)' }} />
+                            </div>
                           )}
-                          <span style={{ transform: 'scaleY(1.05)', filter: 'url(#bloom)' }}>{char}</span>
+
+                          <span style={{ 
+                            fontSize: isComma ? 'min(2vw, 18px)' : 'min(3.2vw, 28px)',
+                            fontFamily: '"Impact", "Arial Narrow", sans-serif', // Daha mekanik ve dar font
+                            fontWeight: '900',
+                            color: isComma ? (isDecimal ? '#fff' : '#ccc') : (isDecimal ? '#ffffff' : '#f0f0f0'),
+                            position: 'relative',
+                            zIndex: 1,
+                            transform: isComma ? 'none' : 'scaleY(1.1) translateY(-1px)',
+                            textShadow: '1px 1px 2px rgba(0,0,0,0.8)',
+                            opacity: 0.95
+                          }}>
+                            {char}
+                          </span>
                         </div>
                       );
                     })}
