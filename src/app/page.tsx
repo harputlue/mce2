@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useRef } from 'react';
-import html2canvas from 'html2canvas';
+import domtoimage from 'dom-to-image';
 
 export default function Home() {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -64,24 +64,23 @@ export default function Home() {
     if (!downloadRef.current) return;
     
     try {
-      console.log("Starting image capture...");
-      const canvas = await html2canvas(downloadRef.current, {
-        useCORS: true,
-        allowTaint: true,
-        scale: 2,
-        backgroundColor: '#000000',
-        logging: true,
-        imageTimeout: 0,
+      console.log("Starting image capture with dom-to-image...");
+      const dataUrl = await domtoimage.toPng(downloadRef.current, {
+        quality: 1,
+        bgcolor: '#000000',
+        style: {
+          transform: 'scale(1)', // Ensure no zoom interference
+        }
       });
       
       const link = document.createElement('a');
       link.download = `mce-akilli-guncelleme-${Date.now()}.png`;
-      link.href = canvas.toDataURL('image/png');
+      link.href = dataUrl;
       link.click();
-      console.log("Download triggered successfully");
+      console.log("Download successful");
     } catch (err: any) {
       console.error("Capture error:", err);
-      alert(`İndirme hatası: ${err.message || 'Tarayıcı uyumluluk sorunu'}. Lütfen tekrar deneyin veya farklı bir tarayıcı kullanın.`);
+      alert(`İndirme hatası: ${err.message || 'Teknik bir sorun oluştu'}. Lütfen tekrar deneyin.`);
     }
   };
 
