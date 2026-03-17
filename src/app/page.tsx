@@ -197,13 +197,13 @@ export default function Home() {
             </div>
           ) : (
             /* RESULT VIEW */
-            <div className="space-y-8 animate-in fade-in slide-in-from-bottom-5 duration-500">
+            <div className="space-y-8 animate-in fade-in slide-in-from-bottom-5 duration-700">
               <div className="grid grid-cols-2 gap-4">
-                <div className="bg-slate-900/50 p-6 rounded-2xl border border-slate-800">
+                <div className="bg-slate-900/50 p-6 rounded-2xl border border-slate-800 shadow-inner">
                   <p className="text-xs uppercase tracking-widest text-slate-500 mb-1">Mevcut Okuma</p>
                   <p className="text-2xl font-black text-slate-200">{result.originalReading?.toString().replace('.', ',')} m³</p>
                 </div>
-                <div className="bg-slate-900/50 p-6 rounded-2xl border border-slate-800">
+                <div className="bg-slate-900/50 p-6 rounded-2xl border border-slate-800 shadow-inner">
                   <p className="text-xs uppercase tracking-widest text-slate-500 mb-1">Yeni Hedef</p>
                   <p className="text-2xl font-black text-emerald-400">
                     {typeof result.finalReading === 'number' ? result.finalReading.toFixed(3).replace('.', ',') : '...'} m³
@@ -211,24 +211,24 @@ export default function Home() {
                 </div>
               </div>
 
-              {/* DRAWABLE AREA - SEAMLESS FUSION V3.6 */}
-              <div ref={downloadRef} className="relative rounded-2xl overflow-hidden shadow-2xl bg-black select-none">
+              {/* DRAWABLE AREA - SEAMLESS FUSION V3.6.1 */}
+              <div ref={downloadRef} className="relative rounded-2xl overflow-hidden shadow-2xl bg-black select-none border-2 border-slate-800">
                 <img src={previewUrl!} className="w-full h-auto object-contain block" alt="Result original" />
                 
                 {/* Noise Filter */}
                 <svg className="hidden">
                   <filter id="seamlessNoise">
-                    <feTurbulence type="fractalNoise" baseFrequency="0.8" numOctaves="4" stitchTiles="stitch" />
+                    <feTurbulence type="fractalNoise" baseFrequency="0.75" numOctaves="3" stitchTiles="stitch" />
                     <feColorMatrix type="saturate" values="0" />
                     <feComponentTransfer>
-                      <feFuncR type="linear" slope="0.3" />
-                      <feFuncG type="linear" slope="0.3" />
-                      <feFuncB type="linear" slope="0.3" />
+                      <feFuncR type="linear" slope="0.32" />
+                      <feFuncG type="linear" slope="0.32" />
+                      <feFuncB type="linear" slope="0.32" />
                     </feComponentTransfer>
                   </filter>
                 </svg>
 
-                {/* PIXEL FUSION ELEMENT (V3.6) */}
+                {/* PIXEL FUSION ELEMENT (V3.6.1) */}
                 {typeof result.finalReading === 'number' && (
                   <div 
                     style={{
@@ -249,8 +249,9 @@ export default function Home() {
                       display: 'flex',
                       width: '100%',
                       height: '100%',
-                      filter: `blur(${result.renderStyle?.blur || 0.45}px) contrast(1.1) saturate(0.9)`, // Renk doygunluğunu fotoğrafla eşlemek için azalttık
+                      filter: `blur(${result.renderStyle?.blur || 0.45}px) contrast(1.1) saturate(0.85)`, // Renk doygunluğunu fotoğrafla eşlemek için azalttık
                       // "Kare kare" görünümü yok etmek için padding ve gap değerlerini mekanik tambur yapısına çektik
+                      gap: 0,
                     }}>
                       {(() => {
                         // 5+3 KURALI UYGULAMASI (Kusursuz Hizalama)
@@ -267,7 +268,7 @@ export default function Home() {
                             <div 
                               key={idx}
                               style={{
-                                flex: isComma ? '0.08' : '1', // Virgül alanını çok daralttık
+                                flex: isComma ? '0.04' : '1', // Virgül alanını çok daralttık
                                 display: 'flex',
                                 alignItems: 'center',
                                 justifyContent: 'center',
@@ -275,35 +276,35 @@ export default function Home() {
                                 // Orijinal Sayaç Rengi ile Fusion
                                 backgroundColor: isComma ? 'transparent' : (isDecimal ? (result.renderStyle?.red || '#911212') : (result.renderStyle?.black || '#131314')),
                                 height: '100%',
-                                // Kutu görünümünü yok eden "Seamless Border" tekniği
-                                borderRight: isComma ? 'none' : '0.5px solid rgba(0,0,0,0.15)',
+                                // Rakamların arasını sadece hafif bir "kontrast farkı" ile ayırıyoruz, kutu çizgisi ile değil
+                                boxShadow: isComma ? 'none' : 'inset 0 0 10px rgba(0,0,0,0.6)',
                                 overflow: 'hidden'
                               }}
                             >
                               {!isComma && (
-                                <div className="absolute inset-0 z-0 opacity-100">
+                                <div className="absolute inset-0 z-0">
                                    {/* Mekanik Derinlik Gölgesi (Üst ve Alt Oklüzyon) */}
-                                  <div className="absolute inset-x-0 top-0 h-1/3 bg-gradient-to-b from-black/90 via-black/40 to-transparent z-10" />
-                                  <div className="absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-black/90 via-black/40 to-transparent z-10" />
+                                  <div className="absolute inset-x-0 top-0 h-1/4 bg-gradient-to-b from-black/85 via-black/30 to-transparent z-10" />
+                                  <div className="absolute inset-x-0 bottom-0 h-1/4 bg-gradient-to-t from-black/85 via-black/30 to-transparent z-10" />
                                   
                                   {/* ISO Kumlanması (Tüm Tambura Yayılması) */}
-                                  <div className="absolute inset-0 opacity-[0.14]" style={{ filter: 'url(#seamlessNoise)', mixBlendMode: 'overlay' }} />
+                                  <div className="absolute inset-0 opacity-[0.16]" style={{ filter: 'url(#seamlessNoise)', mixBlendMode: 'overlay' }} />
                                 </div>
                               )}
 
                               <span style={{ 
-                                fontSize: isComma ? '0' : 'min(3.6vw, 32px)',
-                                fontFamily: '"Arial", sans-serif', // Daha standart/mekanik bir font
+                                fontSize: isComma ? '0' : 'min(3.8vw, 34px)',
+                                fontFamily: 'var(--font-inter), system-ui, sans-serif', // Daha standart/mekanik bir font
                                 fontWeight: '900',
                                 color: isComma ? 'transparent' : (result.renderStyle?.ink || '#dadada'),
-                                // DOKU KARŞIMI: Rakamları piksellerin içine gömer (V3.6)
-                                mixBlendMode: 'hard-light',
+                                // DÜŞÜK PARLAKLIK/DOKU KARIŞIMI (V3.6.1)
+                                mixBlendMode: 'overlay',
                                 position: 'relative',
                                 zIndex: 40,
-                                opacity: 0.88,
-                                transform: 'scaleY(1.15) scaleX(0.9)',
-                                letterSpacing: '-0.02em',
-                                textShadow: isComma ? 'none' : '0.5px 0.5px 0.5px rgba(255,255,255,0.05), -0.5px -0.5px 0.5px rgba(0,0,0,0.4)',
+                                opacity: 0.85,
+                                transform: 'scaleY(1.2) scaleX(0.9)',
+                                letterSpacing: '-0.04em',
+                                textShadow: isComma ? 'none' : '1px 1px 1px rgba(0,0,0,0.8)',
                               }}>
                                 {char === ',' ? '' : char}
                               </span>
@@ -318,20 +319,18 @@ export default function Home() {
                       })()}
                     </div>
 
-                    {/* ÇERÇEVE GÖLGESİ (Pencerenin Sayaç Üzerindeki Oklüzyonu - Kutu görüntüsünü bitiren ana dokunuş) */}
-                    <div className="absolute inset-0 z-[60] shadow-[inset_0_0_20px_rgba(0,0,0,1)] pointer-events-none border border-black/20" />
+                    {/* WINDOW DEPTH SHADOW (Rakamları Fotoğrafın Altına Gömer) */}
+                    <div className="absolute inset-0 z-[60] shadow-[inset_0_0_12px_rgba(0,0,0,0.8)] pointer-events-none border border-black/10" />
                   </div>
                 )}
 
-                {/* Koruyucu Toz ve Çizik Katmanı (Ultra-Reality) */}
-                <div className="absolute inset-0 z-[70] pointer-events-none opacity-20 mix-blend-overlay" style={{ filter: 'url(#seamlessNoise)' }} />
-                
-                {/* Genel Atmosferik Cam Parlaması */}
-                <div className="absolute inset-0 z-[80] pointer-events-none bg-gradient-to-br from-white/10 via-transparent to-black/30 opacity-40 mix-blend-soft-light" />
+                {/* Koruyucu Atmosfer Katmanları */}
+                <div className="absolute inset-0 z-[70] pointer-events-none opacity-[0.08]" style={{ filter: 'url(#seamlessNoise)' }} />
+                <div className="absolute inset-0 z-[80] pointer-events-none bg-gradient-to-tr from-transparent via-white/5 to-transparent opacity-30 mix-blend-overlay" />
                 
                 <div className="absolute bottom-0 left-0 w-full bg-gradient-to-t from-black/95 via-black/40 to-transparent p-4 z-[90] text-center">
-                   <p className="text-slate-500 text-[9px] uppercase tracking-[0.6em] font-black opacity-30">
-                    MCE V3.6 • FINAL SEAMLESS RECONSTRUCTION
+                   <p className="text-slate-500 text-[8px] uppercase tracking-[0.8em] font-black opacity-25">
+                    MCE V3.6.1 • SEAMLESS PIXEL RECONSTRUCTION
                    </p>
                 </div>
               </div>
