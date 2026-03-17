@@ -110,7 +110,7 @@ export default function Home() {
       <div className="max-w-3xl w-full">
         <header className="text-center mb-12 relative">
           <div className="absolute -top-8 left-1/2 -translate-x-1/2">
-            <span className="bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-4 py-1 rounded-full text-[10px] font-black tracking-[0.3em] uppercase animate-pulse shadow-[0px_0px_15px_rgba(16,185,129,0.2)]">
+            <span className="bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-4 py-1 rounded-full text-[10px] font-black tracking-[0.3em] uppercase animate-pulse shadow-xl shadow-emerald-500/20">
               v3.4 FINAL PIXEL ENGINE ACTIVE
             </span>
           </div>
