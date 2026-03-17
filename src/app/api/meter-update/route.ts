@@ -15,8 +15,6 @@ export async function POST(request: Request) {
     }
 
     if (!process.env.GEMINI_API_KEY) {
-        // Fallback for demo if key missing
-        console.warn("GEMINI_API_KEY is missing, running simulation Mode.");
         return NextResponse.json({
             success: true,
             data: {
@@ -24,28 +22,36 @@ export async function POST(request: Request) {
                 added: parseFloat(addedValue),
                 finalReading: parseFloat(currentReading) + parseFloat(addedValue),
                 status: "Demo Modu (API Key Eksik)",
-                reason: "Google Gemini API anahtarı ayarlanmamış, simülasyon yapılıyor."
+                aiMessage: "Gemini API anahtarı ayarlanmamış. Rakamlar varsayılan konuma yerleştirildi.",
+                coordinates: { top: 40, left: 30, width: 40, height: 20 } // Varsayılan demo koordinatları
             }
         });
     }
 
     const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
-    // Multi-modal data prepare
     const imageData = await file.arrayBuffer();
     const base64Image = Buffer.from(imageData).toString('base64');
 
     const prompt = `
-      Bu bir elektrik/su/gaz sayacı fotoğrafıdır. 
-      Fotoğraftaki mevcut okuma değerini kullanıcı ${currentReading} olarak girmistir.
-      Mevcut değer üzerine ${addedValue} m³ eklenecektir.
-      Görevin:
-      1. Görseldeki sayacın okunabilirliğini kontrol et.
-      2. Kullanıcının girdiği ${currentReading} değerinin fotoğrafla uyuşup uyuşmadığını doğrula.
-      3. Toplam değeri kesinlikle virgülden sonra 3 hane olacak şekilde hesapla: ${(parseFloat(currentReading) + parseFloat(addedValue)).toFixed(3)}
-      4. Yeni fotoğrafın üretimi için görselin ışık, açı ve doku özelliklerini teknik olarak analiz et.
-      Yanıtını JSON formatında şu anahtarlarla ver: 
-      { "verified": boolean, "ai_comment": string, "total": number }
+      Bu bir sayaç fotoğrafıdır. Fotoğrafı bir görsel düzenleme uzmanı gibi analiz et.
+      
+      GÖREVİN:
+      1. Fotoğraftaki ana sayaç numarasının (tamburların) bulunduğu alanı tespit et.
+      2. Bu alanın fotoğrafın bütününe göre koordinatlarını (yüzde cinsinden: top, left, width, height) belirle.
+      3. Rakamların font stilini (serifik, sans-serif, dijital), rengini ve oradaki ışık yoğunluğunu (parlaklık) analiz et.
+      4. Yeni değer şudur: ${(parseFloat(currentReading) + parseFloat(addedValue)).toFixed(3)}
+      
+      YANITINI KESİNLİKLE ŞU JSON FORMATINDA VER:
+      {
+        "coordinates": { "top": number, "left": number, "width": number, "height": number },
+        "style": { "font": string, "color": string, "brightness": number },
+        "verified": boolean,
+        "ai_comment": string,
+        "total": number
+      }
+      
+      Not: Koordinatlar 0-100 arası (yüzde) tam değerler olmalıdır. ai_comment kısmında fotoğrafın orijinalliği hakkında kısa bilgi ver.
     `;
 
     const result = await model.generateContent([
@@ -61,26 +67,27 @@ export async function POST(request: Request) {
     const response = await result.response;
     const text = response.text();
     
-    // Attempt to extract JSON from AI response
     const jsonMatch = text.match(/\{[\s\S]*\}/);
-    const aiData = jsonMatch ? JSON.parse(jsonMatch[0]) : { ai_comment: text, total: null, verified: false };
+    const aiData = jsonMatch ? JSON.parse(jsonMatch[0]) : null;
 
-    const finalTotal = aiData.total || (parseFloat(currentReading) + parseFloat(addedValue));
+    if (!aiData) throw new Error("AI koordinat verisi üretemedi.");
 
     return NextResponse.json({
       success: true,
       data: {
         originalReading: parseFloat(currentReading),
         added: parseFloat(addedValue),
-        finalReading: parseFloat(finalTotal.toFixed(3)),
-        status: aiData.verified ? 'AI Onaylı İşlem' : 'Görsel Analiz Tamamlandı',
+        finalReading: aiData.total || (parseFloat(currentReading) + parseFloat(addedValue)),
+        status: aiData.verified ? 'AI Akıllı Koordinat Tespiti' : 'Görsel Analiz Başarılı',
         aiMessage: aiData.ai_comment,
-        v2Engine: 'Gemini 1.5 Flash Integrated'
+        coordinates: aiData.coordinates,
+        renderStyle: aiData.style,
+        v2Engine: 'Gemini 1.5 Vision Engine'
       }
     });
 
   } catch (error: any) {
     console.error("Gemini Error:", error);
-    return NextResponse.json({ error: "Sunucu/AI Hatası: " + error.message }, { status: 500 });
+    return NextResponse.json({ error: "Gemini API Hatası: " + error.message }, { status: 500 });
   }
 }

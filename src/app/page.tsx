@@ -171,28 +171,56 @@ export default function Home() {
                 </div>
               </div>
 
-              {/* DRAWABLE AREA */}
-              <div ref={downloadRef} className="relative rounded-2xl overflow-hidden border border-slate-800 shadow-2xl bg-slate-950">
-                <img src={previewUrl!} className="w-full brightness-[0.4] blur-[1px]" alt="Original base" />
-                <div className="absolute inset-0 flex flex-col items-center justify-center p-8 text-center space-y-4">
-                  <div className="bg-indigo-600 px-6 py-2 rounded-lg font-black text-3xl shadow-xl border border-indigo-400">
-                     {result.finalReading.toFixed(3).replace('.', ',')}
+              {/* DRAWABLE AREA - Gemini tabanlı akıllı yerleşim */}
+              <div ref={downloadRef} className="relative rounded-2xl overflow-hidden border border-slate-800 shadow-2xl bg-black">
+                <img src={previewUrl!} className="w-full h-auto object-contain block opacity-100" alt="Original base" />
+                
+                {/* AI Tarafından Belirlenen Koordinatlara Rakamları Yerleştirme */}
+                <div 
+                  style={{
+                    position: 'absolute',
+                    top: `${result.coordinates?.top || 50}%`,
+                    left: `${result.coordinates?.left || 50}%`,
+                    width: `${result.coordinates?.width || 0}%`,
+                    height: `${result.coordinates?.height || 0}%`,
+                    transform: 'translate(-50%, -50%)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    pointerEvents: 'none',
+                    backgroundColor: 'rgba(0,0,0,0.1)', // Hafif bir doku için
+                    backdropFilter: `brightness(${result.renderStyle?.brightness || 1})`,
+                  }}
+                  className="font-mono font-bold tracking-widest text-white"
+                >
+                  <div style={{
+                    fontSize: '1.2vw', // Ekrana göre ölçeklenen font
+                    color: result.renderStyle?.color || '#ffffff',
+                    textShadow: '0 0 2px rgba(0,0,0,0.8), 1px 1px 1px rgba(0,0,0,0.5)',
+                    display: 'flex',
+                    letterSpacing: '0.15em'
+                  }}>
+                    {result.finalReading.toFixed(3).replace('.', ',')}
                   </div>
-                  <p className="text-slate-300 text-xs max-w-sm leading-relaxed italic px-4">
-                    {result.aiMessage}
-                  </p>
-                  <p className="text-slate-500 text-[9px] uppercase tracking-tighter opacity-50">
-                    MCE Engine v2.0 • {new Date().toLocaleDateString()}
+                </div>
+
+                {/* Bilgi Katmanı (İndirilen görselde gözükmemesi için indir butonuna ayrı bir ref de verilebilir ama şimdilik burada kalsın) */}
+                <div className="absolute bottom-0 left-0 w-full bg-gradient-to-t from-black/80 to-transparent p-4">
+                   <p className="text-slate-400 text-[10px] uppercase tracking-tighter text-center">
+                    Gemini AI Vision Engine tarafından düzenlendi • {new Date().toLocaleDateString()}
                   </p>
                 </div>
               </div>
 
               <div className="flex flex-col gap-3">
+                <p className="text-xs text-center text-indigo-400 animate-pulse italic">
+                   ✨ {result.aiMessage}
+                </p>
                 <button 
                   onClick={downloadImage}
                   className="w-full py-4 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl font-bold text-xl transition-all shadow-lg shadow-emerald-500/20 active:scale-[0.98]"
                 >
-                  Yeni Fotoğrafı Cihazına İndir 📥
+                  Akıllı Fotoğrafı İndir 📥
                 </button>
                 <button 
                   onClick={() => {setResult(null); setPreviewUrl(null); setSelectedFile(null);}}
