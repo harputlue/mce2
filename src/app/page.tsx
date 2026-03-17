@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useRef } from 'react';
+import html2canvas from 'html2canvas';
 
 export default function Home() {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -11,6 +12,7 @@ export default function Home() {
   const [result, setResult] = useState<any>(null);
   
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const downloadRef = useRef<HTMLDivElement>(null);
 
   const handleFile = (file: File) => {
     setSelectedFile(file);
@@ -58,6 +60,25 @@ export default function Home() {
     }
   };
 
+  const downloadImage = async () => {
+    if (!downloadRef.current) return;
+    
+    try {
+      const canvas = await html2canvas(downloadRef.current, {
+        useCORS: true,
+        scale: 2, // Higher quality
+        backgroundColor: '#0f172a'
+      });
+      
+      const link = document.createElement('a');
+      link.download = `mce-updated-${Date.now()}.png`;
+      link.href = canvas.toDataURL('image/png');
+      link.click();
+    } catch (err) {
+      alert('Görsel indirilirken bir hata oluştu.');
+    }
+  };
+
   return (
     <main className="min-h-screen flex flex-col items-center justify-center p-6 bg-slate-950 text-slate-50">
       <div className="max-w-3xl w-full">
@@ -68,7 +89,7 @@ export default function Home() {
           <p className="text-slate-400 text-lg">Server-Side Sayaç Analiz ve Görsel Güncelleme Motoru</p>
         </header>
 
-        <div className="glass rounded-3xl p-8 border border-slate-800 shadow-2xl">
+        <div className="glass rounded-3xl p-8 border border-slate-800 shadow-2xl relative">
           {!result ? (
             <div className={`space-y-8 ${isProcessing ? 'opacity-30 pointer-events-none' : ''}`}>
               {/* UPLOAD AREA */}
@@ -103,10 +124,10 @@ export default function Home() {
                   <label className="text-sm font-medium text-slate-400 uppercase tracking-widest">Mevcut Okuma (Fotoğraftaki)</label>
                   <input 
                     type="number" 
-                    step="0.01"
+                    step="0.001"
                     value={currentValue}
                     onChange={(e) => setCurrentValue(e.target.value)}
-                    placeholder="Örn: 2289,79"
+                    placeholder="Örn: 2289,790"
                     className="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 transition-all font-mono text-lg"
                   />
                 </div>
@@ -150,35 +171,36 @@ export default function Home() {
                 </div>
               </div>
 
-              <div className="relative rounded-2xl overflow-hidden border border-slate-800 shadow-2xl">
-                <img src={previewUrl!} className="w-full brightness-[0.4] blur-[1px]" alt="Original blurred" />
+              {/* DRAWABLE AREA */}
+              <div ref={downloadRef} className="relative rounded-2xl overflow-hidden border border-slate-800 shadow-2xl bg-slate-950">
+                <img src={previewUrl!} className="w-full brightness-[0.4] blur-[1px]" alt="Original base" />
                 <div className="absolute inset-0 flex flex-col items-center justify-center p-8 text-center space-y-4">
-                  <div className="bg-indigo-600 px-6 py-2 rounded-lg font-black text-2xl shadow-xl border border-indigo-400 animate-pulse-slow">
-                    YENİ DEĞER: {result.finalReading.toFixed(3).replace('.', ',')}
+                  <div className="bg-indigo-600 px-6 py-2 rounded-lg font-black text-3xl shadow-xl border border-indigo-400">
+                     {result.finalReading.toFixed(3).replace('.', ',')}
                   </div>
-                  <p className="text-slate-300 text-sm max-w-sm leading-relaxed italic">
+                  <p className="text-slate-300 text-xs max-w-sm leading-relaxed italic px-4">
                     {result.aiMessage}
                   </p>
-                  <p className="text-slate-500 text-[10px] mt-2 uppercase tracking-tight">
-                    Powered by {result.v2Engine || 'MCE Engine v2.0'}
+                  <p className="text-slate-500 text-[9px] uppercase tracking-tighter opacity-50">
+                    MCE Engine v2.0 • {new Date().toLocaleDateString()}
                   </p>
-                  <div className="flex gap-4 mt-4">
-                    <button 
-                      onClick={() => alert('Görsel şu an Antigravity Panelinize aktarılıyor...')}
-                      className="px-6 py-2 bg-white text-slate-950 rounded-lg font-bold hover:bg-slate-200 transition-colors"
-                    >
-                      Yeni Fotoğrafı İndir 📥
-                    </button>
-                  </div>
                 </div>
               </div>
 
-              <button 
-                onClick={() => {setResult(null); setPreviewUrl(null); setSelectedFile(null);}}
-                className="w-full py-4 border border-slate-700 hover:bg-slate-900 rounded-xl font-bold text-slate-400 transition-all"
-              >
-                Yeni İşlem Başlat
-              </button>
+              <div className="flex flex-col gap-3">
+                <button 
+                  onClick={downloadImage}
+                  className="w-full py-4 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl font-bold text-xl transition-all shadow-lg shadow-emerald-500/20 active:scale-[0.98]"
+                >
+                  Yeni Fotoğrafı Cihazına İndir 📥
+                </button>
+                <button 
+                  onClick={() => {setResult(null); setPreviewUrl(null); setSelectedFile(null);}}
+                  className="w-full py-2 text-slate-500 hover:text-slate-300 transition-colors text-sm font-medium"
+                >
+                  ← Yeni İşlem Başlat
+                </button>
+              </div>
             </div>
           )}
 
