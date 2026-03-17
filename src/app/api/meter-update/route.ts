@@ -49,35 +49,31 @@ export async function POST(request: Request) {
       
       OBJECTIVE: Take the uploaded counter image and analyze everything needed to modify ONLY the digits to match the target value: ${finalValue.replace('.', ',')}.
       
-      CRITICAL DIRECTIVES:
-      - Preserve the original design, materials, lighting, shadows, reflections, perspective, and imperfections exactly as in the source image.
-      - The result must look like a real photograph, not digitally generated.
-      - Maintain:
-        * Original texture and surface details (scratches, dust, slight wear).
-        * Natural lighting and shadows consistent with the environment.
-        * Realistic depth, reflections, and lens characteristics.
-        * ISO noise and grain to avoid a clean/artificial look.
+      MECHANICAL DRUM DIRECTIVES:
+      - This is a physical mechanical counter. Digits are on rotating cylinders (drums).
+      - Analyze "Mechanical Jitter": Small, random vertical/horizontal misalignments between digits.
+      - Analyze "Drum Curvature": The spherical shading that makes a cylinder look 3D.
+      - Analyze "Physical Depth": How the digits are slightly recessed or embossed on the drum surface.
       
-      DIGITS ANALYSIS:
-      - Coordinate matching for the 5+3 digit window ($[54268171] meter model).
-      - Perfectly match the original font style, thickness, and alignment.
-      - Analyze environmental occlusion (how the edges of the window make digits look darker at the top/bottom).
-      - Analyze subtle imperfections like uneven brightness or minor blur.
-      
-      AVOID: Flat colors, sharp edges, artificial glow, or digital artifacts.
+      CRITICAL REPRODUCTION:
+      - Preserve the original design, lighting, shadows, reflections, and perspective exactly.
+      - Maintain original texture, surface scratches, and ISO noise.
+      - Digits must perfectly match the original font and blend naturally (no flat overlay).
       
       RESPONSE JSON FORMAT:
       {
         "coordinates": { "top": number, "left": number, "width": number, "height": number },
         "style": { 
-          "weatheredBlackHex": "The exact aged black of the drums",
-          "fadedRedHex": "The exact aged red of the decimal zone",
-          "digitInkColor": "The precise ink color (e.g., #dadada or off-white)",
-          "blurLevel": number (0.0 to 1.5),
+          "weatheredBlackHex": string,
+          "fadedRedHex": string,
+          "digitInkColor": string,
+          "blurLevel": number,
           "perspectiveSkew": number,
-          "isoNoise": number (0.0 to 1.0)
+          "isoNoise": number,
+          "mechanicalJitter": number (0.0 to 1.0),
+          "drumCurvature": number (0.0 to 1.0)
         },
-        "v3Engine": "MCE Ultra-Reality V3.7"
+        "v3Engine": "MCE Mechanical-Drum V3.8"
       }
     `;
 
@@ -99,14 +95,16 @@ export async function POST(request: Request) {
         
         const aiData = JSON.parse(jsonMatch[0]);
         
-        // v3.7 Synced Mapping
+        // v3.8 Synced Mapping (Mechanical Drum Engine)
         const renderStyle = {
             black: aiData.style?.weatheredBlackHex || '#131314',
             red: aiData.style?.fadedRedHex || '#911212',
             ink: aiData.style?.digitInkColor || '#dadada',
             blur: aiData.style?.blurLevel || 0.45,
             skew: aiData.style?.perspectiveSkew || 0,
-            noise: aiData.style?.isoNoise || 0.15
+            noise: aiData.style?.isoNoise || 0.15,
+            jitter: aiData.style?.mechanicalJitter || 0.05,
+            curvature: aiData.style?.drumCurvature || 1.0
         };
 
         return NextResponse.json({ 
@@ -115,11 +113,11 @@ export async function POST(request: Request) {
                 originalReading: parseFloat(currentReading),
                 added: parseFloat(addedValue),
                 finalReading: parseFloat(finalValue),
-                aiMessage: aiData.ai_note || "Analiz tamamlandı.",
+                aiMessage: aiData.ai_note || "Mechanical drum analysis complete.",
                 coordinates: aiData.coordinates,
                 design: { integers: 5, decimals: 3, spacing: 0 },
                 renderStyle,
-                v3Engine: 'MCE Ultra-Reality V3.7'
+                v3Engine: 'MCE Mechanical-Drum V3.8'
             } 
         });
     } catch (error) {

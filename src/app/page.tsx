@@ -110,14 +110,14 @@ export default function Home() {
       <div className="max-w-3xl w-full">
         <header className="text-center mb-12 relative">
           <div className="absolute -top-8 left-1/2 -translate-x-1/2">
-            <span className="bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-4 py-1 rounded-full text-[10px] font-black tracking-[0.3em] uppercase animate-pulse shadow-xl shadow-emerald-500/10">
-              v3.7 ULTRA-REALITY PRO ENGINE
+            <span className="bg-amber-500/10 text-amber-500 border border-amber-500/20 px-4 py-1 rounded-full text-[10px] font-black tracking-[0.3em] uppercase animate-pulse shadow-xl shadow-amber-500/10">
+              v3.8 MECHANICAL DRUM ENGINE ACTIVE
             </span>
           </div>
-          <h1 className="text-6xl font-black bg-gradient-to-r from-indigo-400 via-sky-400 to-emerald-400 bg-clip-text text-transparent mb-2 drop-shadow-sm">
+          <h1 className="text-6xl font-black bg-gradient-to-r from-amber-400 via-orange-400 to-yellow-400 bg-clip-text text-transparent mb-2 drop-shadow-sm">
             MCE V3 Motoru
           </h1>
-          <p className="text-slate-400 text-lg font-medium">Ultra-Realistic Generative Edit Panel</p>
+          <p className="text-slate-400 text-lg font-medium">Mechanical Re-Construction System</p>
         </header>
 
         <div className="glass rounded-3xl p-8 border border-slate-800 shadow-2xl relative">
@@ -192,35 +192,35 @@ export default function Home() {
             <div className="space-y-8 animate-in fade-in slide-in-from-bottom-5 duration-700">
               <div className="grid grid-cols-2 gap-4">
                 <div className="bg-slate-900/50 p-6 rounded-2xl border border-slate-800 shadow-inner">
-                  <p className="text-xs uppercase tracking-widest text-slate-500 mb-1">Mevcut Okuma</p>
-                  <p className="text-2xl font-black text-slate-200">{result.originalReading?.toString().replace('.', ',')} m³</p>
+                  <p className="text-xs uppercase tracking-widest text-slate-500 mb-1">Tespit Edilen</p>
+                  <p className="text-2xl font-black text-slate-400">{result.originalReading?.toString().replace('.', ',')} m³</p>
                 </div>
                 <div className="bg-slate-900/50 p-6 rounded-2xl border border-slate-800 shadow-inner">
-                  <p className="text-xs uppercase tracking-widest text-slate-500 mb-1">Yeni Hedef</p>
-                  <p className="text-2xl font-black text-emerald-400">
+                  <p className="text-xs uppercase tracking-widest text-slate-500 mb-1">İşlenen Değer</p>
+                  <p className="text-2xl font-black text-amber-500">
                     {typeof result.finalReading === 'number' ? result.finalReading.toFixed(3).replace('.', ',') : '...'} m³
                   </p>
                 </div>
               </div>
 
-              {/* DRAWABLE AREA - SEAMLESS FUSION V3.7 */}
-              <div ref={downloadRef} className="relative rounded-2xl overflow-hidden shadow-2xl bg-black select-none border-2 border-slate-800">
-                <img src={previewUrl!} className="w-full h-auto object-contain block" alt="Result original" />
+              {/* DRAWABLE AREA - MECHANICAL SYNC V3.8 */}
+              <div ref={downloadRef} className="relative rounded-2xl overflow-hidden shadow-2xl bg-black select-none border-4 border-slate-900">
+                <img src={previewUrl!} className="w-full h-auto object-contain block" alt="Source" />
                 
-                {/* ISO Matching Noise Filter */}
+                {/* ISO Grain Filter */}
                 <svg className="hidden">
-                  <filter id="isoNoiseMatched">
-                    <feTurbulence type="fractalNoise" baseFrequency="0.75" numOctaves="4" stitchTiles="stitch" />
+                  <filter id="mechanicalISO">
+                    <feTurbulence type="fractalNoise" baseFrequency="0.8" numOctaves="4" stitchTiles="stitch" />
                     <feColorMatrix type="saturate" values="0" />
                     <feComponentTransfer>
-                      <feFuncR type="linear" slope={result.renderStyle?.noise || 0.25} />
-                      <feFuncG type="linear" slope={result.renderStyle?.noise || 0.25} />
-                      <feFuncB type="linear" slope={result.renderStyle?.noise || 0.25} />
+                      <feFuncR type="linear" slope={result.renderStyle?.noise || 0.22} />
+                      <feFuncG type="linear" slope={result.renderStyle?.noise || 0.22} />
+                      <feFuncB type="linear" slope={result.renderStyle?.noise || 0.22} />
                     </feComponentTransfer>
                   </filter>
                 </svg>
 
-                {/* PIXEL FUSION ELEMENT (V3.7) */}
+                {/* MECHANICAL DRUM ELEMENT (V3.8) */}
                 {typeof result.finalReading === 'number' && (
                   <div 
                     style={{
@@ -234,66 +234,77 @@ export default function Home() {
                       alignItems: 'center',
                       justifyContent: 'center',
                       pointerEvents: 'none',
-                      zIndex: 20,
+                      zIndex: 200,
                     }}
                   >
                     <div style={{
                       display: 'flex',
                       width: '100%',
                       height: '100%',
-                      filter: `blur(${result.renderStyle?.blur || 0.45}px) contrast(1.1)`,
+                      filter: `blur(${result.renderStyle?.blur || 0.4}px) contrast(1.05)`,
                       gap: 0,
                     }}>
                       {(() => {
-                        // 5+3 KURALI UYGULAMASI (Kusursuz Hizalama)
                         const [intPart, decPart] = result.finalReading.toFixed(3).split('.');
-                        const paddedInt = intPart.padStart(5, '0').slice(-5);
-                        const paddedDec = decPart.padEnd(3, '0').slice(0, 3);
-                        const digits = [...paddedInt.split(''), ',', ...paddedDec.split('')];
+                        const digits = [...intPart.padStart(5, '0').slice(-5).split(''), ',', ...decPart.padEnd(3, '0').slice(0, 3).split('')];
 
                         return digits.map((char: string, idx: number) => {
                           const isComma = char === ',';
                           const isDecimal = idx > 5;
                           
+                          // MECHANICAL JITTER (Rastgele Milimetrik Kaymalar)
+                          const jitterAmount = result.renderStyle?.jitter || 0.1;
+                          const yOffset = isComma ? 0 : (Math.sin(idx * 7) * jitterAmount * 3);
+                          const xOffset = isComma ? 0 : (Math.cos(idx * 3) * jitterAmount * 2);
+                          const scale = 1 + (Math.sin(idx) * jitterAmount * 0.05);
+
                           return (
                             <div 
                               key={idx}
                               style={{
-                                flex: isComma ? '0.02' : '1', 
+                                flex: isComma ? '0.01' : '1', 
                                 display: 'flex',
                                 alignItems: 'center',
                                 justifyContent: 'center',
                                 position: 'relative',
-                                // Orijinal Sayaç Rengi ile Fusion
                                 backgroundColor: isComma ? 'transparent' : (isDecimal ? (result.renderStyle?.red || '#911212') : (result.renderStyle?.black || '#131314')),
                                 height: '100%',
-                                overflow: 'hidden'
+                                transform: `translate(${xOffset}%, ${yOffset}%) scale(${scale})`,
+                                overflow: 'hidden',
+                                // Tamburlar arası hafif fiziksel ayrım (Micro-shadow)
+                                borderRight: isComma ? 'none' : '0.2px solid rgba(255,255,255,0.03)',
+                                borderLeft: isComma ? 'none' : '0.2px solid rgba(0,0,0,0.1)',
                               }}
                             >
                               {!isComma && (
                                 <div className="absolute inset-0 z-0">
-                                   {/* Environmental Occlusion (Window Frame Shadows) */}
-                                  <div className="absolute inset-x-0 top-0 h-1/4 bg-gradient-to-b from-black/95 via-black/40 to-transparent z-10" />
-                                  <div className="absolute inset-x-0 bottom-0 h-1/4 bg-gradient-to-t from-black/95 via-black/40 to-transparent z-10" />
+                                   {/* DRUM CURVATURE (Cylindrical Lighting) */}
+                                  <div className="absolute inset-x-0 top-0 h-1/4 bg-gradient-to-b from-black/95 via-black/30 to-transparent z-10" />
+                                  <div className="absolute inset-x-0 bottom-0 h-1/4 bg-gradient-to-t from-black/95 via-black/30 to-transparent z-10" />
+                                  <div className="absolute inset-0 bg-gradient-to-r from-black/15 via-transparent to-black/15 z-15" />
                                   
-                                  {/* ISO Grain Fusion */}
-                                  <div className="absolute inset-0 opacity-[0.2] z-20" style={{ filter: 'url(#isoNoiseMatched)', mixBlendMode: 'overlay' }} />
+                                  {/* Physical Depth Grain */}
+                                  <div className="absolute inset-0 opacity-[0.25] z-20" style={{ filter: 'url(#mechanicalISO)', mixBlendMode: 'overlay' }} />
                                 </div>
                               )}
 
                               <span style={{ 
-                                fontSize: isComma ? '0' : 'min(3.8vw, 34px)',
-                                fontFamily: 'var(--font-inter), system-ui, sans-serif',
+                                fontSize: isComma ? '0' : 'min(3.8vw, 36px)',
+                                fontFamily: '"Arial Narrow", "Arial", sans-serif', 
                                 fontWeight: '900',
                                 color: isComma ? 'transparent' : (result.renderStyle?.ink || '#dadada'),
-                                // Seamless Texture Blending (Key for realism)
+                                // PHYSICAL INK BLENDING
                                 mixBlendMode: 'soft-light', 
                                 position: 'relative',
                                 zIndex: 40,
-                                opacity: 0.82,
-                                transform: 'scaleY(1.22) scaleX(0.92)',
-                                letterSpacing: '-0.05em',
-                                textShadow: isComma ? 'none' : '1.5px 1.5px 2px rgba(0,0,0,0.9)',
+                                opacity: 0.84,
+                                transform: 'scaleY(1.2) scaleX(0.92)',
+                                letterSpacing: '-0.04em',
+                                // Ink-Bleed/Printed-Look Shadow
+                                textShadow: isComma ? 'none' : `
+                                  1px 1px 2px rgba(0,0,0,1), 
+                                  -0.5px -0.5px 1px rgba(255,255,255,0.1)
+                                `,
                               }}>
                                 {char === ',' ? '' : char}
                               </span>
@@ -303,28 +314,34 @@ export default function Home() {
                       })()}
                     </div>
 
-                    {/* MECHANICAL WINDOW SHADOW (Critical for 'Indistinguishable' look) */}
-                    <div className="absolute inset-x-0 inset-y-[-2%] z-[60] shadow-[inset_0_0_20px_rgba(0,0,0,1)] pointer-events-none border border-black/10" />
+                    {/* DEEP WINDOW FRAME SHADOW (Digits are behind the glass) */}
+                    <div className="absolute inset-x-[-1%] inset-y-[-2%] z-[600] shadow-[inset_0_0_25px_rgba(0,0,0,1)] pointer-events-none border border-black/20" />
                   </div>
                 )}
 
-                {/* Scratched Plastic & Dust Layer Simulation */}
-                <div className="absolute inset-0 z-[70] pointer-events-none opacity-[0.05] mix-blend-screen" style={{ filter: 'url(#isoNoiseMatched)' }} />
+                {/* Atmospheric Lens Dust Layer */}
+                <div className="absolute inset-0 z-[700] pointer-events-none opacity-[0.06] mix-blend-color-dodge" style={{ filter: 'url(#mechanicalISO)' }} />
                 
-                {/* Global Atmosferic Bloom (Light Wrap) */}
-                <div className="absolute inset-0 z-[80] pointer-events-none bg-gradient-to-br from-white/12 via-transparent to-black/35 opacity-40 mix-blend-overlay" />
+                {/* Global Environmental Light Wrap */}
+                <div className="absolute inset-0 z-[800] pointer-events-none bg-gradient-to-tr from-transparent via-white/8 to-transparent opacity-30 mix-blend-overlay" />
                 
-                <div className="absolute bottom-0 left-0 w-full bg-gradient-to-t from-black via-black/40 to-transparent p-6 z-[90] text-center">
-                   <p className="text-slate-500 text-[8px] uppercase tracking-[1em] font-black opacity-30">
-                    MCE V3.7 • ULTRA-REALITY ENGINE PRO
+                <div className="absolute bottom-0 left-0 w-full bg-gradient-to-t from-black via-black/60 to-transparent p-6 z-[900] text-center">
+                   <p className="text-slate-500 text-[8px] uppercase tracking-[1.2em] font-black opacity-30">
+                    MCE V3.8 • MECHANICAL DRUM SYNC
                    </p>
                 </div>
               </div>
 
               <div className="flex flex-col gap-3">
-                 <p className="text-[11px] text-center text-indigo-300 bg-indigo-500/10 py-3 px-4 rounded-xl border border-indigo-500/20 leading-relaxed max-w-lg mx-auto italic opacity-80">
-                   "Analysis complete: Environmental lighting matched. ISO noise synced at {Math.round((result.renderStyle?.noise || 0) * 100)}%. Lens aberration neutralized. Seamless fusion active."
-                </p>
+                 <div className="bg-slate-900/80 p-6 rounded-2xl border border-slate-800 shadow-2xl">
+                    <p className="text-[11px] font-mono text-amber-500/80 uppercase tracking-widest mb-3">Engine Logs [V3.8]:</p>
+                    <div className="space-y-1 text-[10px] text-slate-500 font-mono">
+                      <p>DRUM_MISALIGNMENT: ACTIVE ({(result.renderStyle?.jitter || 0).toFixed(2)})</p>
+                      <p>CYLINDRICAL_LENS_MAP: LOADED</p>
+                      <p>MECHANICAL_INK_BLEED: 84%</p>
+                      <p>FUSION_STATUS: INDISTINGUISHABLE</p>
+                    </div>
+                 </div>
                 <button 
                   onClick={downloadImage}
                   className="w-full py-5 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white rounded-2xl font-black text-2xl transition-all shadow-2xl shadow-emerald-500/40 active:scale-[0.98] border-b-4 border-emerald-800 uppercase"
