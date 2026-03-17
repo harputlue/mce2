@@ -228,7 +228,7 @@ export default function Home() {
                   </filter>
                 </svg>
 
-                {/* PIXEL RECONSTRUCTION LAYER (V3.2) */}
+                {/* PIXEL RECONSTRUCTION ENGINE V3.3 - Environmental Light Mapping */}
                 <div 
                   style={{
                     position: 'absolute',
@@ -256,9 +256,13 @@ export default function Home() {
                     {result.finalReading.toFixed(3).replace('.', ',').split('').map((char: string, idx: number) => {
                       const isComma = char === ',';
                       const isDecimal = idx > result.finalReading.toFixed(3).length - 4;
-                      // Her rakama hafif bir "mekanik jitter" (milimetrik aşağı-yukarı oynama) ekleyerek gerçekçilik katıyoruz
-                      const jitter = isComma ? 0 : (Math.sin(idx * 7) * 1.5);
+                      const jitter = isComma ? 0 : (Math.sin(idx * 7) * 1.5); // Mekanik hata payı
                       
+                      // Işık Yönü Hesaplama (Gemini'den gelen lightDir'e göre)
+                      const lightGradient = result.renderStyle?.lightDir === 'top-to-bottom' 
+                        ? 'bg-gradient-to-b from-white/10 via-transparent to-black/30'
+                        : 'bg-gradient-to-tr from-black/20 via-transparent to-white/10';
+
                       return (
                         <div 
                           key={idx}
@@ -268,57 +272,51 @@ export default function Home() {
                             alignItems: 'center',
                             justifyContent: 'center',
                             position: 'relative',
-                            // Orijinal fotoğraftan gelen renklerle (black/red) boyama
                             backgroundColor: isComma ? 'transparent' : (isDecimal ? (result.renderStyle?.red || '#a31a1a') : (result.renderStyle?.black || '#0d0d0d')),
-                            boxShadow: isComma ? 'none' : 'inset 0 0 10px rgba(0,0,0,0.95)',
+                            boxShadow: isComma ? 'none' : 'inset 0 0 12px rgba(0,0,0,0.9), 0 0.5px 1px rgba(255,255,255,0.1)',
                             transform: `translateY(${jitter}px)`,
                             zIndex: isComma ? 5 : 10
                           }}
                         >
-                          {/* Tambur Doku ve Derinlik (Işık Gölge Oyunu) */}
+                          {/* Tambur Doku ve Derinlik */}
                           {!isComma && (
-                            <div className="absolute inset-0 z-0 opacity-80">
-                               {/* Üstten gelen fiziksel gölge (Tambur yuvarlaklığı) */}
-                              <div className="absolute inset-x-0 top-0 h-1/2 bg-gradient-to-b from-black/90 via-black/40 to-transparent" />
-                              {/* Alttan gelen fiziksel gölge */}
-                              <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black/90 via-black/40 to-transparent" />
-                              {/* Fotoğraf Toz/ISO Kumlanması Ekran Üzerinden Giydirme */}
-                              <div className="absolute inset-0 opacity-25" style={{ filter: 'url(#noiseFilter)', mixBlendMode: 'soft-light' }} />
+                            <div className="absolute inset-0 z-0">
+                               {/* Tambur Yuvarlaklığı (Dikey Gölge) */}
+                              <div className="absolute inset-x-0 top-0 h-1/2 bg-gradient-to-b from-black/85 via-black/30 to-transparent z-10" />
+                              <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black/85 via-black/30 to-transparent z-10" />
+                              {/* Ortam Işığı (Environmental Light) */}
+                              <div className={`absolute inset-0 opacity-40 z-20 ${lightGradient}`} />
+                              {/* Kir/Doku Katmanı */}
+                              <div className="absolute inset-0 opacity-20 z-30" style={{ filter: 'url(#noiseFilter)', mixBlendMode: 'overlay' }} />
                             </div>
                           )}
 
                           <span style={{ 
                             fontSize: isComma ? 'min(2vw, 18px)' : 'min(3.4vw, 30px)',
-                            fontFamily: 'Inter, system-ui, sans-serif', // Daha modern ama okunaklı bir mono-look
+                            fontFamily: '"Impact", "Arial Narrow", sans-serif',
                             letterSpacing: '-0.02em',
                             fontWeight: '900',
                             color: isComma ? (isDecimal ? '#fff' : '#ccc') : (result.renderStyle?.digits || '#f2f2f2'),
                             position: 'relative',
-                            zIndex: 1,
-                            // Chromatic Aberration (Renk Saçılması) Efekti - Mercek kalibrasyonu için
-                            textShadow: isComma ? 'none' : `1px 0 1px rgba(255,0,0,0.4), -1px 0 1px rgba(0,255,255,0.4)`,
-                            opacity: 0.96,
-                            transform: 'scaleY(1.05)'
+                            zIndex: 40,
+                            textShadow: isComma ? 'none' : `1px 0 1px rgba(255,0,0,0.3), -1px 0 1px rgba(0,255,255,0.3), 1px 1px 2px rgba(0,0,0,0.8)`,
+                            opacity: 0.98,
+                            transform: 'scaleY(1.08) scaleX(0.95)'
                           }}>
                             {char}
                           </span>
-
-                          {/* Işık Yansıması (Gloss Layer) */}
-                          {!isComma && (
-                            <div className="absolute inset-0 z-20 bg-gradient-to-tr from-transparent via-white/5 to-transparent pointer-events-none opacity-40" />
-                          )}
                         </div>
                       );
                     })}
                   </div>
                 </div>
 
-                {/* Cam Koruma Tabakası (Genel Parlama) */}
-                <div className="absolute inset-0 z-30 pointer-events-none bg-gradient-to-br from-white/10 via-transparent to-black/10 opacity-30 mix-blend-overlay" />
+                {/* Cam Katmanı (Genel Atmosferik Parlama) */}
+                <div className="absolute inset-0 z-50 pointer-events-none bg-gradient-to-br from-white/15 via-transparent to-black/15 opacity-40 mix-blend-soft-light" />
                 
-                <div className="absolute bottom-0 left-0 w-full bg-gradient-to-t from-black/98 to-transparent p-4 z-40">
-                   <p className="text-slate-500 text-[9px] uppercase tracking-[0.4em] text-center font-bold opacity-60">
-                    MCE V3.2 PIXEL RECONSTRUCION ENGINE
+                <div className="absolute bottom-0 left-0 w-full bg-gradient-to-t from-black/98 via-black/60 to-transparent p-4 z-60">
+                   <p className="text-slate-500 text-[10px] uppercase tracking-[0.5em] text-center font-black opacity-40">
+                    MCE V3.3 • PIXEL-PERFECT RECONSTRUCTION ENGINE
                   </p>
                 </div>
               </div>
