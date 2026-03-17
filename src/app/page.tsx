@@ -111,7 +111,7 @@ export default function Home() {
         <header className="text-center mb-12 relative">
           <div className="absolute -top-8 left-1/2 -translate-x-1/2">
             <span className="bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-4 py-1 rounded-full text-[10px] font-black tracking-[0.3em] uppercase animate-pulse shadow-xl shadow-emerald-500/20">
-              v3.4 FINAL PIXEL ENGINE ACTIVE
+              v3.5 ULTRA-REALITY ENGINE ACTIVE
             </span>
           </div>
           <h1 className="text-6xl font-black bg-gradient-to-r from-indigo-400 via-sky-400 to-emerald-400 bg-clip-text text-transparent mb-2 drop-shadow-sm">
@@ -235,7 +235,7 @@ export default function Home() {
                   </filter>
                 </svg>
 
-                {/* PIXEL PERFECT ENGINE V3.4 - Mechanical Realism */}
+                {/* ULTRA-REALITY RECONSTRUCTION ENGINE V3.5 (Pixel Fusion Mode) */}
                 <div 
                   style={{
                     position: 'absolute',
@@ -250,76 +250,81 @@ export default function Home() {
                     pointerEvents: 'none',
                     zIndex: 20,
                   }}
-                  className="overflow-hidden"
                 >
                   <div style={{
                     display: 'flex',
                     width: '100%',
                     height: '100%',
-                    filter: `blur(${result.renderStyle?.blur || 0.4}px) contrast(1.1)`,
-                    gap: `${(result.design?.spacing || 0.1) * 4}px`,
-                    padding: '0 1px'
+                    // Odak Uyumu (Focal Blur) - Sayıların fotoğrafın netliğine 'kaynaması' için (V3.5)
+                    filter: `blur(${result.renderStyle?.blur || 0.45}px) contrast(1.05) brightness(1.02)`,
+                    gap: `${(result.design?.spacing || 0.12) * 5}px`,
                   }}>
                     {result.finalReading.toFixed(3).replace('.', ',').split('').map((char: string, idx: number) => {
                       const isComma = char === ',';
                       const isDecimal = idx > result.finalReading.toFixed(3).length - 4;
-                      // Her bir rakam tamburunu bağımsız bir nesne olarak ele alıyoruz
+                      
                       return (
                         <div 
                           key={idx}
                           style={{
-                            flex: isComma ? '0.2' : '1',
+                            flex: isComma ? '0.15' : '1',
                             display: 'flex',
                             alignItems: 'center',
                             justifyContent: 'center',
                             position: 'relative',
-                            // Orijinal fotoğraftaki kirlenmiş/solmuş renklerle boyama
-                            backgroundColor: isComma ? 'transparent' : (isDecimal ? (result.renderStyle?.red || '#a31a1a') : (result.renderStyle?.black || '#1a1a1b')),
-                            boxShadow: isComma ? 'none' : 'inset 0 0 12px rgba(0,0,0,1), 0 0.5px 1px rgba(255,255,255,0.05)',
-                            borderRadius: '1.5px',
+                            // Orijinal Sayaç Dokusuyla Harmanlama (Seamless Fusion)
+                            backgroundColor: isComma ? 'transparent' : (isDecimal ? (result.renderStyle?.red || '#911212') : (result.renderStyle?.black || '#131314')),
+                            // Tamburun kenarlarını fotoğrafa eriten radyal geçiş (V3.5)
+                            maskImage: isComma ? 'none' : 'radial-gradient(ellipse at center, black 85%, transparent 100%)',
+                            boxShadow: isComma ? 'none' : 'inset 0 0 15px rgba(0,0,0,0.95)',
+                            borderRadius: '1px',
                             overflow: 'hidden',
-                            zIndex: isComma ? 5 : 10
                           }}
                         >
-                          {/* Tambur Doku ve Derinlik (V3.4 Engine) */}
+                          {/* Tambur Doku ve Işık Detayları */}
                           {!isComma && (
                             <div className="absolute inset-0 z-0">
-                               {/* 3D Tambur Yuvarlaklığı (Üst/Alt Gölge) */}
-                              <div className="absolute inset-x-0 top-0 h-2/5 bg-gradient-to-b from-black/85 via-black/30 to-transparent z-10" />
-                              <div className="absolute inset-x-0 bottom-0 h-2/5 bg-gradient-to-t from-black/85 via-black/30 to-transparent z-10" />
-                              {/* Tambur Üstü Yansıma (Highlight) */}
-                              <div className="absolute inset-x-0 top-1/4 h-px bg-white/10 z-20" />
-                              {/* Fotoğraf Toz/ISO Kumlanması */}
-                              <div className="absolute inset-0 opacity-20 z-30" style={{ filter: 'url(#noiseFilter)', mixBlendMode: 'overlay' }} />
+                               {/* Tambur Yuvarlaklığı (Üst/Alt Fiziksel Karartma) */}
+                              <div className="absolute inset-x-0 top-0 h-1/2 bg-gradient-to-b from-black/85 via-black/25 to-transparent z-10" />
+                              <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black/85 via-black/25 to-transparent z-10" />
+                              {/* Fotoğraf Kumlanması ve Doku Geçirgenliği */}
+                              <div className="absolute inset-0 opacity-20 z-20" style={{ filter: 'url(#noiseFilter)', mixBlendMode: 'overlay' }} />
                             </div>
                           )}
 
                           <span style={{ 
-                            fontSize: isComma ? 'min(2vw, 16px)' : 'min(3.4vw, 30px)',
-                            fontFamily: 'system-ui, -apple-system, sans-serif',
+                            fontSize: isComma ? 'min(1.5vw, 14px)' : 'min(3.5vw, 32px)',
+                            fontFamily: 'Inter, system-ui, sans-serif',
                             fontWeight: '900',
-                            color: isComma ? 'transparent' : (result.renderStyle?.ink || '#eeeeee'), // Mürekkep rengi analizi
+                            // Rakamların "mürekkep" gibi değil, kazınmış gibi görünmesi için (Multiply Blending)
+                            color: isComma ? 'transparent' : (result.renderStyle?.ink || '#dadada'),
+                            mixBlendMode: 'overlay', // ALTINDAKİ FOTOĞRAFIN DOKUSUNU GÖSTERİR (V3.5)
                             position: 'relative',
                             zIndex: 40,
-                            textShadow: isComma ? 'none' : `1px 1px 1px rgba(0,0,0,0.8)`,
-                            opacity: 0.95,
-                            transform: isComma ? 'none' : 'scaleY(1.1) scaleX(0.9)',
-                            letterSpacing: '-0.05em'
+                            textShadow: isComma ? 'none' : `1px 1px 1.5px rgba(0,0,0,0.9)`,
+                            opacity: 0.92,
+                            transform: isComma ? 'none' : 'scaleY(1.1) scaleX(0.92)',
+                            letterSpacing: '-0.06em'
                           }}>
                             {char === ',' ? '' : char}
                           </span>
+
+                          {/* Işık Yansıması (Environmental Bloom) */}
+                          {!isComma && (
+                            <div className="absolute inset-0 z-50 bg-gradient-to-tr from-transparent via-white/5 to-transparent opacity-30 mix-blend-screen pointer-events-none" />
+                          )}
                         </div>
                       );
                     })}
                   </div>
                 </div>
 
-                {/* Koruyucu Cam Yansıması ve Atmosferik Parlama */}
-                <div className="absolute inset-0 z-50 pointer-events-none bg-gradient-to-tr from-transparent via-white/5 to-transparent opacity-40 mix-blend-overlay" />
+                {/* Koruyucu Cam Yansıması ve Atmosferik Derinlik */}
+                <div className="absolute inset-0 z-50 pointer-events-none bg-gradient-to-br from-white/10 via-transparent to-black/20 opacity-35 mix-blend-soft-light" />
                 
-                <div className="absolute bottom-0 left-0 w-full bg-gradient-to-t from-black/95 to-transparent p-4 z-60">
-                   <p className="text-slate-500 text-[9px] uppercase tracking-[0.4em] text-center font-black opacity-50">
-                    MCE V3.4 • FINAL PIXEL-PERFECT RECONSTRUCTION
+                <div className="absolute bottom-0 left-0 w-full bg-gradient-to-t from-black/95 via-black/40 to-transparent p-4 z-60">
+                   <p className="text-slate-500 text-[9px] uppercase tracking-[0.5em] text-center font-black opacity-40">
+                    MCE V3.5 • ULTRA-REALITY RECONSTRUCTION
                   </p>
                 </div>
               </div>
