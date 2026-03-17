@@ -85,7 +85,20 @@ export async function POST(request: Request) {
     ]);
 
     const response = await result.response;
-    const aiData = JSON.parse(response.text().match(/\{[\s\S]*\}/)?.[0] || '{}');
+    const text = response.text();
+    const jsonMatch = text.match(/\{[\s\S]*\}/);
+    const aiData = jsonMatch ? JSON.parse(jsonMatch[0]) : null;
+
+    if (!aiData) throw new Error("AI görsel analiz verisi oluşturamadı.");
+
+    // Koordinat Normalizasyonu (0-1000 -> 0-100)
+    const normalize = (val: number) => val > 100 ? val / 10 : val;
+    const coords = {
+      top: normalize(aiData.coordinates.top),
+      left: normalize(aiData.coordinates.left),
+      width: normalize(aiData.coordinates.width),
+      height: normalize(aiData.coordinates.height)
+    };
 
     return NextResponse.json({
       success: true,
@@ -93,10 +106,10 @@ export async function POST(request: Request) {
         originalReading: parseFloat(currentReading),
         added: parseFloat(addedValue),
         finalReading: parseFloat(finalValue),
-        aiMessage: aiData.comment,
-        coordinates: aiData.coordinates,
+        aiMessage: aiData.comment || "Piksel rekonstrüksiyonu tamamlandı.",
+        coordinates: coords,
         renderStyle: aiData.style,
-        v3Engine: 'MCE Pixel Reconstruction Engine v3.1'
+        v3Engine: 'MCE Pixel Reconstruction Engine v3.2'
       }
     });
 
