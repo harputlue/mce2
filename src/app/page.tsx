@@ -64,18 +64,24 @@ export default function Home() {
     if (!downloadRef.current) return;
     
     try {
+      console.log("Starting image capture...");
       const canvas = await html2canvas(downloadRef.current, {
         useCORS: true,
-        scale: 2, // Higher quality
-        backgroundColor: '#0f172a'
+        allowTaint: true,
+        scale: 2,
+        backgroundColor: '#000000',
+        logging: true,
+        imageTimeout: 0,
       });
       
       const link = document.createElement('a');
-      link.download = `mce-updated-${Date.now()}.png`;
+      link.download = `mce-akilli-guncelleme-${Date.now()}.png`;
       link.href = canvas.toDataURL('image/png');
       link.click();
-    } catch (err) {
-      alert('Görsel indirilirken bir hata oluştu.');
+      console.log("Download triggered successfully");
+    } catch (err: any) {
+      console.error("Capture error:", err);
+      alert(`İndirme hatası: ${err.message || 'Tarayıcı uyumluluk sorunu'}. Lütfen tekrar deneyin veya farklı bir tarayıcı kullanın.`);
     }
   };
 
@@ -173,7 +179,7 @@ export default function Home() {
 
               {/* DRAWABLE AREA - Gemini tabanlı akıllı yerleşim */}
               <div ref={downloadRef} className="relative rounded-2xl overflow-hidden border border-slate-800 shadow-2xl bg-black">
-                <img src={previewUrl!} className="w-full h-auto object-contain block opacity-100" alt="Original base" />
+                <img src={previewUrl!} className="w-full h-auto object-contain block opacity-100" alt="Result original" crossOrigin="anonymous" />
                 
                 {/* AI Tarafından Belirlenen Koordinatlara Rakamları Yerleştirme */}
                 <div 
@@ -181,24 +187,25 @@ export default function Home() {
                     position: 'absolute',
                     top: `${result.coordinates?.top || 50}%`,
                     left: `${result.coordinates?.left || 50}%`,
-                    width: `${result.coordinates?.width || 0}%`,
-                    height: `${result.coordinates?.height || 0}%`,
+                    width: `${result.coordinates?.width || 20}%`,
+                    height: `${result.coordinates?.height || 10}%`,
                     transform: 'translate(-50%, -50%)',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
                     pointerEvents: 'none',
-                    backgroundColor: 'rgba(0,0,0,0.1)', // Hafif bir doku için
-                    backdropFilter: `brightness(${result.renderStyle?.brightness || 1})`,
+                    backgroundColor: 'rgba(0,0,0,0.15)', // Backdrop filter yerine hafif koyuluk
                   }}
-                  className="font-mono font-bold tracking-widest text-white"
+                  className="font-mono font-bold tracking-widest text-white overflow-hidden"
                 >
                   <div style={{
-                    fontSize: '1.2vw', // Ekrana göre ölçeklenen font
+                    fontSize: 'min(3vw, 24px)', // Daha güvenli bir font ölçekleme
                     color: result.renderStyle?.color || '#ffffff',
-                    textShadow: '0 0 2px rgba(0,0,0,0.8), 1px 1px 1px rgba(0,0,0,0.5)',
                     display: 'flex',
-                    letterSpacing: '0.15em'
+                    letterSpacing: '0.15em',
+                    filter: `brightness(${result.renderStyle?.brightness || 1}) contrast(1.1)`,
+                    // Text shadow html2canvas tarafından desteklendiği için stilistik derinlik katıyoruz
+                    textShadow: '1px 1px 2px rgba(0,0,0,0.9)'
                   }}>
                     {result.finalReading.toFixed(3).replace('.', ',')}
                   </div>
