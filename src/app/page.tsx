@@ -110,14 +110,14 @@ export default function Home() {
       <div className="max-w-3xl w-full">
         <header className="text-center mb-12 relative">
           <div className="absolute -top-8 left-1/2 -translate-x-1/2">
-            <span className="bg-amber-500/10 text-amber-500 border border-amber-500/20 px-4 py-1 rounded-full text-[10px] font-black tracking-[0.3em] uppercase animate-pulse shadow-xl shadow-amber-500/10">
-              v3.8 MECHANICAL DRUM ENGINE ACTIVE
+            <span className="bg-slate-500/10 text-slate-400 border border-slate-500/20 px-4 py-1 rounded-full text-[10px] font-black tracking-[0.3em] uppercase animate-pulse shadow-xl shadow-slate-500/10">
+              v3.9 TRUE-ANALOG PRO ENGINE
             </span>
           </div>
-          <h1 className="text-6xl font-black bg-gradient-to-r from-amber-400 via-orange-400 to-yellow-400 bg-clip-text text-transparent mb-2 drop-shadow-sm">
+          <h1 className="text-6xl font-black bg-gradient-to-r from-slate-400 via-slate-200 to-slate-400 bg-clip-text text-transparent mb-2 drop-shadow-sm">
             MCE V3 Motoru
           </h1>
-          <p className="text-slate-400 text-lg font-medium">Mechanical Re-Construction System</p>
+          <p className="text-slate-500 text-lg font-medium italic">Analog Pixel Reconstruction System</p>
         </header>
 
         <div className="glass rounded-3xl p-8 border border-slate-800 shadow-2xl relative">
@@ -220,7 +220,7 @@ export default function Home() {
                   </filter>
                 </svg>
 
-                {/* MECHANICAL DRUM ELEMENT (V3.8) */}
+                {/* MECHANICAL DRUM ELEMENT (V3.9) */}
                 {typeof result.finalReading === 'number' && (
                   <div 
                     style={{
@@ -241,7 +241,7 @@ export default function Home() {
                       display: 'flex',
                       width: '100%',
                       height: '100%',
-                      filter: `blur(${result.renderStyle?.blur || 0.4}px) contrast(1.05)`,
+                      filter: `blur(${result.renderStyle?.blur || 0.6}px) contrast(0.95) saturate(0.9)`, 
                       gap: 0,
                     }}>
                       {(() => {
@@ -252,11 +252,9 @@ export default function Home() {
                           const isComma = char === ',';
                           const isDecimal = idx > 5;
                           
-                          // MECHANICAL JITTER (Rastgele Milimetrik Kaymalar)
-                          const jitterAmount = result.renderStyle?.jitter || 0.1;
-                          const yOffset = isComma ? 0 : (Math.sin(idx * 7) * jitterAmount * 3);
-                          const xOffset = isComma ? 0 : (Math.cos(idx * 3) * jitterAmount * 2);
-                          const scale = 1 + (Math.sin(idx) * jitterAmount * 0.05);
+                          const jitterAmount = (result.renderStyle?.jitter || 0.12) * 4;
+                          const yOffset = isComma ? 0 : (Math.sin(idx * 7) * jitterAmount);
+                          const xOffset = isComma ? 0 : (Math.cos(idx * 3) * (jitterAmount / 2));
 
                           return (
                             <div 
@@ -267,44 +265,33 @@ export default function Home() {
                                 alignItems: 'center',
                                 justifyContent: 'center',
                                 position: 'relative',
-                                backgroundColor: isComma ? 'transparent' : (isDecimal ? (result.renderStyle?.red || '#911212') : (result.renderStyle?.black || '#131314')),
+                                backgroundColor: isComma ? 'transparent' : (isDecimal ? (result.renderStyle?.red || '#8b1212') : (result.renderStyle?.black || '#111112')),
                                 height: '100%',
-                                transform: `translate(${xOffset}%, ${yOffset}%) scale(${scale})`,
+                                transform: `translate(${xOffset}%, ${yOffset}%)`,
                                 overflow: 'hidden',
-                                // Tamburlar arası hafif fiziksel ayrım (Micro-shadow)
-                                borderRight: isComma ? 'none' : '0.2px solid rgba(255,255,255,0.03)',
-                                borderLeft: isComma ? 'none' : '0.2px solid rgba(0,0,0,0.1)',
+                                borderRight: isComma ? 'none' : '0.1px solid rgba(0,0,0,0.2)',
                               }}
                             >
                               {!isComma && (
                                 <div className="absolute inset-0 z-0">
-                                   {/* DRUM CURVATURE (Cylindrical Lighting) */}
-                                  <div className="absolute inset-x-0 top-0 h-1/4 bg-gradient-to-b from-black/95 via-black/30 to-transparent z-10" />
-                                  <div className="absolute inset-x-0 bottom-0 h-1/4 bg-gradient-to-t from-black/95 via-black/30 to-transparent z-10" />
-                                  <div className="absolute inset-0 bg-gradient-to-r from-black/15 via-transparent to-black/15 z-15" />
-                                  
-                                  {/* Physical Depth Grain */}
-                                  <div className="absolute inset-0 opacity-[0.25] z-20" style={{ filter: 'url(#mechanicalISO)', mixBlendMode: 'overlay' }} />
+                                  <div className="absolute inset-x-0 top-0 h-1/3 bg-gradient-to-b from-black/98 via-black/40 to-transparent z-10" />
+                                  <div className="absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-black/98 via-black/40 to-transparent z-10" />
+                                  <div className="absolute inset-0 opacity-[0.25] z-20" style={{ filter: 'url(#analogGrain)', mixBlendMode: 'overlay' }} />
                                 </div>
                               )}
 
                               <span style={{ 
                                 fontSize: isComma ? '0' : 'min(3.8vw, 36px)',
-                                fontFamily: '"Arial Narrow", "Arial", sans-serif', 
+                                fontFamily: '"Arial Narrow", sans-serif',
                                 fontWeight: '900',
-                                color: isComma ? 'transparent' : (result.renderStyle?.ink || '#dadada'),
-                                // PHYSICAL INK BLENDING
+                                color: isComma ? 'transparent' : (result.renderStyle?.ink || '#d1d1d1'),
                                 mixBlendMode: 'soft-light', 
                                 position: 'relative',
                                 zIndex: 40,
-                                opacity: 0.84,
+                                opacity: 0.82,
                                 transform: 'scaleY(1.2) scaleX(0.92)',
                                 letterSpacing: '-0.04em',
-                                // Ink-Bleed/Printed-Look Shadow
-                                textShadow: isComma ? 'none' : `
-                                  1px 1px 2px rgba(0,0,0,1), 
-                                  -0.5px -0.5px 1px rgba(255,255,255,0.1)
-                                `,
+                                textShadow: isComma ? 'none' : `1.5px 1.5px 3px rgba(0,0,0,0.9)`,
                               }}>
                                 {char === ',' ? '' : char}
                               </span>
@@ -314,8 +301,17 @@ export default function Home() {
                       })()}
                     </div>
 
-                    {/* DEEP WINDOW FRAME SHADOW (Digits are behind the glass) */}
-                    <div className="absolute inset-x-[-1%] inset-y-[-2%] z-[600] shadow-[inset_0_0_25px_rgba(0,0,0,1)] pointer-events-none border border-black/20" />
+                    <div className="absolute inset-x-[-1%] inset-y-[-2%] z-[600] shadow-[inset_0_0_28px_rgba(0,0,0,1)] pointer-events-none border border-black/30" />
+                    
+                    <div 
+                        className="absolute inset-0 z-[650] pointer-events-none mix-blend-screen opacity-[0.4]"
+                        style={{
+                            backgroundImage: `url(${previewUrl})`,
+                            backgroundSize: '3333% 1250%',
+                            backgroundPosition: `${result.coordinates?.left}% ${result.coordinates?.top}%`,
+                            filter: 'contrast(1.5) brightness(0.8) grayscale(1)',
+                        }}
+                    />
                   </div>
                 )}
 
@@ -325,21 +321,23 @@ export default function Home() {
                 {/* Global Environmental Light Wrap */}
                 <div className="absolute inset-0 z-[800] pointer-events-none bg-gradient-to-tr from-transparent via-white/8 to-transparent opacity-30 mix-blend-overlay" />
                 
-                <div className="absolute bottom-0 left-0 w-full bg-gradient-to-t from-black via-black/60 to-transparent p-6 z-[900] text-center">
-                   <p className="text-slate-500 text-[8px] uppercase tracking-[1.2em] font-black opacity-30">
-                    MCE V3.8 • MECHANICAL DRUM SYNC
+                <div className="absolute bottom-0 left-0 w-full bg-gradient-to-t from-black/90 via-black/30 to-transparent p-6 z-[900] text-center">
+                   <p className="text-slate-600 text-[8px] uppercase tracking-[1.4em] font-black opacity-30">
+                    MCE V3.9 • TRUE-ANALOG RECONSTRUCTION
                    </p>
                 </div>
               </div>
 
               <div className="flex flex-col gap-3">
-                 <div className="bg-slate-900/80 p-6 rounded-2xl border border-slate-800 shadow-2xl">
-                    <p className="text-[11px] font-mono text-amber-500/80 uppercase tracking-widest mb-3">Engine Logs [V3.8]:</p>
-                    <div className="space-y-1 text-[10px] text-slate-500 font-mono">
-                      <p>DRUM_MISALIGNMENT: ACTIVE ({(result.renderStyle?.jitter || 0).toFixed(2)})</p>
-                      <p>CYLINDRICAL_LENS_MAP: LOADED</p>
-                      <p>MECHANICAL_INK_BLEED: 84%</p>
-                      <p>FUSION_STATUS: INDISTINGUISHABLE</p>
+                 <div className="bg-slate-950/80 p-6 rounded-2xl border border-slate-900 shadow-2xl">
+                    <p className="text-[11px] font-mono text-slate-500 uppercase tracking-widest mb-3">Analog Debug [V3.9]:</p>
+                    <div className="grid grid-cols-2 gap-x-6 gap-y-1 text-[10px] text-slate-600 font-mono">
+                      <p>DRUM_MISALIGN: {(result.renderStyle?.jitter || 0).toFixed(3)}</p>
+                      <p>SURFACE_DECAY: {(result.renderStyle?.decay || 0).toFixed(2)}</p>
+                      <p>LENS_SOFTNESS: {(result.renderStyle?.blur || 0).toFixed(2)}px</p>
+                      <p>ANALOG_GRAIN: SYNCED</p>
+                      <p>GLASS_LAYER: COMPOSITED</p>
+                      <p>FUSION: INDISTINGUISHABLE</p>
                     </div>
                  </div>
                 <button 
