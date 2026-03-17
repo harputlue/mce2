@@ -64,18 +64,18 @@ export default function Home() {
     if (!downloadRef.current) return;
     
     try {
-      console.log("MCE v2.1: Starting dom-to-image capture...");
+      console.log("MCE v3.0 Engine: Starting high-fidelity capture...");
       const dataUrl = await domtoimage.toPng(downloadRef.current, {
-        quality: 1,
+        quality: 1.0,
         bgcolor: '#000000',
-        cacheBust: true, // Cache sorunlarını engellemek için
+        cacheBust: true,
       });
       
       const link = document.createElement('a');
-      link.download = `mce-akilli-guncelleme-${Date.now()}.png`;
+      link.download = `mce-v3-guncelleme-${Date.now()}.png`; // PNG formatında indirme
       link.href = dataUrl;
       link.click();
-      console.log("Download successful");
+      console.log("MCE V3: Image saved as PNG");
     } catch (err: any) {
       console.error("Capture error:", err);
       alert(`İndirme Hatası (v2.1): ${err.message}. \n\nEğer 'lab' hatası alıyorsanız lütfen tarayıcı sekmesini kapatıp tekrar açın veya CMD+Shift+R ile sert yenileme yapın.`);
@@ -86,10 +86,10 @@ export default function Home() {
     <main className="min-h-screen flex flex-col items-center justify-center p-6 bg-slate-950 text-slate-50">
       <div className="max-w-3xl w-full">
         <header className="text-center mb-12">
-          <h1 className="text-5xl font-black bg-gradient-to-r from-indigo-400 to-emerald-400 bg-clip-text text-transparent mb-2">
-            MCE Sayaç Pro v2.0
+          <h1 className="text-6xl font-black bg-gradient-to-r from-indigo-400 via-sky-400 to-emerald-400 bg-clip-text text-transparent mb-2 drop-shadow-sm">
+            MCE V3 Motoru
           </h1>
-          <p className="text-slate-400 text-lg">Server-Side Sayaç Analiz ve Görsel Güncelleme Motoru</p>
+          <p className="text-slate-400 text-lg font-medium">Yeni Nesil Akıllı Sayaç Analiz ve Generative Edit Paneli</p>
         </header>
 
         <div className="glass rounded-3xl p-8 border border-slate-800 shadow-2xl relative">
@@ -269,22 +269,22 @@ export default function Home() {
                 {/* Plastik Kapak / Cam Parlaması Efekti */}
                 <div className="absolute inset-0 pointer-events-none bg-gradient-to-tr from-transparent via-white/5 to-transparent opacity-30" />
 
-                <div className="absolute bottom-0 left-0 w-full bg-gradient-to-t from-black/90 to-transparent p-3">
-                   <p className="text-slate-500 text-[8px] uppercase tracking-[0.2em] text-center font-bold">
-                    MCE AI GRAPHICS ENGINE • VERIFIED PERSPECTIVE RENDER
+                <div className="absolute bottom-0 left-0 w-full bg-gradient-to-t from-black/95 to-transparent p-4">
+                   <p className="text-slate-500 text-[10px] uppercase tracking-[0.3em] text-center font-bold">
+                    MCE AI V3 ENGINE • VERIFIED PIXEL RECONSTRUCTION
                   </p>
                 </div>
               </div>
 
               <div className="flex flex-col gap-3">
-                <p className="text-[10px] text-center text-indigo-400 bg-indigo-500/5 py-2 rounded-lg border border-indigo-500/10 italic">
-                   ✨ AI Notu: {result.aiMessage}
+                <p className="text-[11px] text-center text-indigo-300 bg-indigo-500/10 py-3 px-4 rounded-xl border border-indigo-500/20 leading-relaxed">
+                   <strong>V3 AI Analizi:</strong> {result.aiMessage}
                 </p>
                 <button 
                   onClick={downloadImage}
-                  className="w-full py-4 bg-emerald-600 hover:bg-emerald-500 text-white rounded-2xl font-black text-xl transition-all shadow-xl shadow-emerald-500/20 active:scale-[0.98] border-b-4 border-emerald-800"
+                  className="w-full py-5 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white rounded-2xl font-black text-2xl transition-all shadow-2xl shadow-emerald-500/40 active:scale-[0.98] border-b-4 border-emerald-800 uppercase"
                 >
-                  KUSURSUZ GÖRSELİ İNDİR 📥
+                  GÖRSELİ PNG OLARAK İNDİR 📥
                 </button>
                 <button 
                   onClick={() => {setResult(null); setPreviewUrl(null); setSelectedFile(null);}}
