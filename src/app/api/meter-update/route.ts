@@ -1,38 +1,84 @@
 import { NextResponse } from 'next/server';
+import { GoogleGenerativeAI } from "@google/generative-ai";
+
+const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || "");
 
 export async function POST(request: Request) {
   try {
     const formData = await request.formData();
-    const currentReading = parseFloat(formData.get('currentValue') as string);
-    const addedValue = parseFloat(formData.get('addedValue') as string);
+    const currentReading = formData.get('currentValue') as string;
+    const addedValue = formData.get('addedValue') as string;
     const file = formData.get('image') as File;
 
-    if (isNaN(currentReading) || isNaN(addedValue) || !file) {
-      return NextResponse.json({ error: 'Missing required data' }, { status: 400 });
+    if (!file || !currentReading || !addedValue) {
+      return NextResponse.json({ error: 'Eksik veri (görsel veya değerler)' }, { status: 400 });
     }
 
-    const total = currentReading + addedValue;
+    if (!process.env.GEMINI_API_KEY) {
+        // Fallback for demo if key missing
+        console.warn("GEMINI_API_KEY is missing, running simulation Mode.");
+        return NextResponse.json({
+            success: true,
+            data: {
+                originalReading: parseFloat(currentReading),
+                added: parseFloat(addedValue),
+                finalReading: parseFloat(currentReading) + parseFloat(addedValue),
+                status: "Demo Modu (API Key Eksik)",
+                reason: "Google Gemini API anahtarı ayarlanmamış, simülasyon yapılıyor."
+            }
+        });
+    }
 
-    // Simulate AI Image Generation Delay (Server-side)
-    await new Promise(resolve => setTimeout(resolve, 3000));
+    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
-    // Here normally we would call an AI API like Gemini to process the image:
-    // 1. Send the original image + instructions for target values.
-    // 2. The AI returns the edited image buffer.
-    // 3. We convert it back to a base64 or URL.
+    // Multi-modal data prepare
+    const imageData = await file.arrayBuffer();
+    const base64Image = Buffer.from(imageData).toString('base64');
 
-    // FOR NOW: We simulate the success response returning the calculation.
+    const prompt = `
+      Bu bir elektrik/su/gaz sayacı fotoğrafıdır. 
+      Fotoğraftaki mevcut okuma değerini kullanıcı ${currentReading} olarak girmistir.
+      Mevcut değer üzerine ${addedValue} m³ eklenecektir.
+      Görevin:
+      1. Görseldeki sayacın okunabilirliğini kontrol et.
+      2. Kullanıcının girdiği ${currentReading} değerinin fotoğrafla uyuşup uyuşmadığını doğrula.
+      3. Toplam değeri hesapla: ${parseFloat(currentReading) + parseFloat(addedValue)}
+      4. Yeni fotoğrafın üretimi için görselin ışık, açı ve doku özelliklerini teknik olarak analiz et.
+      Yanıtını JSON formatında şu anahtarlarla ver: 
+      { "verified": boolean, "ai_comment": string, "total": number }
+    `;
+
+    const result = await model.generateContent([
+      prompt,
+      {
+        inlineData: {
+          data: base64Image,
+          mimeType: file.type
+        }
+      }
+    ]);
+
+    const response = await result.response;
+    const text = response.text();
+    
+    // Attempt to extract JSON from AI response
+    const jsonMatch = text.match(/\{[\s\S]*\}/);
+    const aiData = jsonMatch ? JSON.parse(jsonMatch[0]) : { ai_comment: text, total: null, verified: false };
+
     return NextResponse.json({
       success: true,
       data: {
-        originalReading: currentReading,
-        added: addedValue,
-        finalReading: total,
-        status: 'Processed by MCE Engine v2.0',
-        aiMessage: 'Görsel analiz edildi, orijinallik korunarak yeni değerler tamburlara işlendi.'
+        originalReading: parseFloat(currentReading),
+        added: parseFloat(addedValue),
+        finalReading: aiData.total || (parseFloat(currentReading) + parseFloat(addedValue)),
+        status: aiData.verified ? 'AI Onaylı İşlem' : 'Görsel Analiz Tamamlandı',
+        aiMessage: aiData.ai_comment,
+        v2Engine: 'Gemini 1.5 Flash Integrated'
       }
     });
+
   } catch (error: any) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    console.error("Gemini Error:", error);
+    return NextResponse.json({ error: "Sunucu/AI Hatası: " + error.message }, { status: 500 });
   }
 }

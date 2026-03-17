@@ -156,8 +156,11 @@ export default function Home() {
                   <div className="bg-indigo-600 px-6 py-2 rounded-lg font-black text-2xl shadow-xl border border-indigo-400 animate-pulse-slow">
                     YENİ DEĞER: {result.finalReading.toFixed(2).replace('.', ',')}
                   </div>
-                  <p className="text-slate-300 text-sm max-w-sm leading-relaxed">
-                    Yapay Zeka Motoru orijinal fotoğrafın dokusunu, ışığını ve seri numarasını koruyarak rakamları güncelledi.
+                  <p className="text-slate-300 text-sm max-w-sm leading-relaxed italic">
+                    {result.aiMessage}
+                  </p>
+                  <p className="text-slate-500 text-[10px] mt-2 uppercase tracking-tight">
+                    Powered by {result.v2Engine || 'MCE Engine v2.0'}
                   </p>
                   <div className="flex gap-4 mt-4">
                     <button 
