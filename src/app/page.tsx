@@ -174,57 +174,82 @@ export default function Home() {
                 </div>
               </div>
 
-              {/* DRAWABLE AREA - Gemini tabanlı akıllı yerleşim */}
-              <div ref={downloadRef} className="relative rounded-2xl overflow-hidden border border-slate-800 shadow-2xl bg-black">
-                <img src={previewUrl!} className="w-full h-auto object-contain block opacity-100" alt="Result original" crossOrigin="anonymous" />
+              {/* DRAWABLE AREA - Profesyonel Mekanik Sayaç Render Modu */}
+              <div ref={downloadRef} className="relative rounded-2xl overflow-hidden border-4 border-slate-900 shadow-2xl bg-black select-none">
+                <img src={previewUrl!} className="w-full h-auto object-contain block" alt="Result original" crossOrigin="anonymous" />
                 
-                {/* AI Tarafından Belirlenen Koordinatlara Rakamları Yerleştirme */}
+                {/* AI Tarafından Belirlenen Mekanik Tambur Katmanı */}
                 <div 
                   style={{
                     position: 'absolute',
                     top: `${result.coordinates?.top || 50}%`,
                     left: `${result.coordinates?.left || 50}%`,
-                    width: `${result.coordinates?.width || 20}%`,
-                    height: `${result.coordinates?.height || 10}%`,
-                    transform: 'translate(-50%, -50%)',
+                    width: `${result.coordinates?.width || 30}%`,
+                    height: `${result.coordinates?.height || 8}%`,
+                    transform: `translate(-50%, -50%) skew(${result.renderStyle?.skew || 0}deg)`,
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
                     pointerEvents: 'none',
-                    backgroundColor: 'rgba(0,0,0,0.15)', // Backdrop filter yerine hafif koyuluk
+                    backgroundColor: result.renderStyle?.bgTone === 'white' ? 'rgba(255,255,255,0.9)' : 'rgba(10,10,10,0.85)',
+                    boxShadow: 'inset 0 0 10px rgba(0,0,0,1)',
                   }}
-                  className="font-mono font-bold tracking-widest text-white overflow-hidden"
+                  className="overflow-hidden rounded-sm"
                 >
                   <div style={{
-                    fontSize: 'min(3vw, 24px)', // Daha güvenli bir font ölçekleme
-                    color: result.renderStyle?.color || '#ffffff',
                     display: 'flex',
-                    letterSpacing: '0.15em',
-                    filter: `brightness(${result.renderStyle?.brightness || 1}) contrast(1.1)`,
-                    // Text shadow html2canvas tarafından desteklendiği için stilistik derinlik katıyoruz
-                    textShadow: '1px 1px 2px rgba(0,0,0,0.9)'
+                    width: '100%',
+                    height: '100%',
+                    filter: `blur(${result.renderStyle?.blur || 0.3}px) brightness(${result.renderStyle?.brightness || 1}) contrast(1.1)`,
+                    mixBlendMode: result.renderStyle?.bgTone === 'white' ? 'multiply' : 'screen',
+                    padding: '0 2px'
                   }}>
-                    {result.finalReading.toFixed(3).replace('.', ',')}
+                    {result.finalReading.toFixed(3).replace('.', ',').split('').map((char: string, idx: number) => (
+                      <div 
+                        key={idx}
+                        style={{
+                          flex: 1,
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          borderRight: idx < result.finalReading.toFixed(3).length - 1 ? '1px solid rgba(128,128,128,0.2)' : 'none',
+                          color: char === ',' ? (result.renderStyle?.bgTone === 'white' ? 'black' : 'white') : (idx > result.finalReading.toFixed(3).length - 4 ? '#e11d48' : (result.renderStyle?.color || '#ffffff')),
+                          background: char === ',' ? 'transparent' : (idx > result.finalReading.toFixed(3).length - 4 ? 'rgba(255,0,0,0.05)' : 'none'),
+                          fontSize: 'min(2.5vw, 22px)',
+                          fontFamily: 'monospace',
+                          fontWeight: '900',
+                          textShadow: '1px 1px 1px rgba(0,0,0,0.5)',
+                          position: 'relative',
+                        }}
+                      >
+                        {/* Tambur Gölgelendirmesi (Üst ve Alt) */}
+                        <div className="absolute inset-x-0 top-0 h-1/4 bg-gradient-to-b from-black/40 to-transparent pointer-events-none" />
+                        <div className="absolute inset-x-0 bottom-0 h-1/4 bg-gradient-to-t from-black/40 to-transparent pointer-events-none" />
+                        {char}
+                      </div>
+                    ))}
                   </div>
                 </div>
 
-                {/* Bilgi Katmanı (İndirilen görselde gözükmemesi için indir butonuna ayrı bir ref de verilebilir ama şimdilik burada kalsın) */}
-                <div className="absolute bottom-0 left-0 w-full bg-gradient-to-t from-black/80 to-transparent p-4">
-                   <p className="text-slate-400 text-[10px] uppercase tracking-tighter text-center">
-                    Gemini AI Vision Engine tarafından düzenlendi • {new Date().toLocaleDateString()}
+                {/* Plastik Kapak / Cam Parlaması Efekti */}
+                <div className="absolute inset-0 pointer-events-none bg-gradient-to-tr from-transparent via-white/5 to-transparent opacity-30" />
+
+                <div className="absolute bottom-0 left-0 w-full bg-gradient-to-t from-black/90 to-transparent p-3">
+                   <p className="text-slate-500 text-[8px] uppercase tracking-[0.2em] text-center font-bold">
+                    MCE AI GRAPHICS ENGINE • VERIFIED PERSPECTIVE RENDER
                   </p>
                 </div>
               </div>
 
               <div className="flex flex-col gap-3">
-                <p className="text-xs text-center text-indigo-400 animate-pulse italic">
-                   ✨ {result.aiMessage}
+                <p className="text-[10px] text-center text-indigo-400 bg-indigo-500/5 py-2 rounded-lg border border-indigo-500/10 italic">
+                   ✨ AI Notu: {result.aiMessage}
                 </p>
                 <button 
                   onClick={downloadImage}
-                  className="w-full py-4 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl font-bold text-xl transition-all shadow-lg shadow-emerald-500/20 active:scale-[0.98]"
+                  className="w-full py-4 bg-emerald-600 hover:bg-emerald-500 text-white rounded-2xl font-black text-xl transition-all shadow-xl shadow-emerald-500/20 active:scale-[0.98] border-b-4 border-emerald-800"
                 >
-                  Akıllı Fotoğrafı İndir 📥
+                  KUSURSUZ GÖRSELİ İNDİR 📥
                 </button>
                 <button 
                   onClick={() => {setResult(null); setPreviewUrl(null); setSelectedFile(null);}}

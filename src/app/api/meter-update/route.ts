@@ -22,8 +22,9 @@ export async function POST(request: Request) {
                 added: parseFloat(addedValue),
                 finalReading: parseFloat(currentReading) + parseFloat(addedValue),
                 status: "Demo Modu (API Key Eksik)",
-                aiMessage: "Gemini API anahtarı ayarlanmamış. Rakamlar varsayılan konuma yerleştirildi.",
-                coordinates: { top: 40, left: 30, width: 40, height: 20 } // Varsayılan demo koordinatları
+                aiMessage: "Gemini API anahtarı ayarlanmamış. Varsayılan yerleşim kullanılıyor.",
+                coordinates: { top: 40, left: 50, width: 40, height: 10 },
+                renderStyle: { color: '#ffffff', brightness: 1, skew: 0, bgTone: 'black' }
             }
         });
     }
@@ -34,24 +35,30 @@ export async function POST(request: Request) {
     const base64Image = Buffer.from(imageData).toString('base64');
 
     const prompt = `
-      Bu bir sayaç fotoğrafıdır. Fotoğrafı bir görsel düzenleme uzmanı gibi analiz et.
+      Bu bir sayaç fotoğrafıdır. Fotoğrafı bir "Dijital Görüntü İşleme Uzmanı" gibi analiz et.
       
       GÖREVİN:
-      1. Fotoğraftaki ana sayaç numarasının (tamburların) bulunduğu alanı tespit et.
-      2. Bu alanın fotoğrafın bütününe göre koordinatlarını (yüzde cinsinden: top, left, width, height) belirle.
-      3. Rakamların font stilini (serifik, sans-serif, dijital), rengini ve oradaki ışık yoğunluğunu (parlaklık) analiz et.
-      4. Yeni değer şudur: ${(parseFloat(currentReading) + parseFloat(addedValue)).toFixed(3)}
+      1. Rakamların (tamburların) tam olarak bulunduğu kutunun koordinatlarını belirle.
+      2. Rakamların üzerine binen yeni metnin "gerçekçi" görünmesi için şu verileri JSON olarak ver:
+         - coordinates: { top: %, left: %, width: %, height: % } (Kutunun tam konumu)
+         - style: 
+             - color: Rakamların rengi (hex koduna yakın tahmin)
+             - brightness: Ortam ışığına göre parlaklık (0.5 - 1.5)
+             - skew: Fotoğrafın perspektifine göre eğim açısı (derece)
+             - bgTone: Rakamların arkasındaki tambur zemini rengi (black/gray/white)
+             - blur: Fotoğrafın netliğine göre uygulanacak bulanıklık (pixel cinsinden 0-2)
+         - ai_comment: Fotoğrafın dokusu hakkında teknik bilgi.
       
-      YANITINI KESİNLİKLE ŞU JSON FORMATINDA VER:
+      YENİ DEĞER: ${(parseFloat(currentReading) + parseFloat(addedValue)).toFixed(3)}
+      
+      YANIT FORMATI:
       {
         "coordinates": { "top": number, "left": number, "width": number, "height": number },
-        "style": { "font": string, "color": string, "brightness": number },
-        "verified": boolean,
+        "style": { "color": string, "brightness": number, "skew": number, "bgTone": string, "blur": number },
+        "verified": true,
         "ai_comment": string,
         "total": number
       }
-      
-      Not: Koordinatlar 0-100 arası (yüzde) tam değerler olmalıdır. ai_comment kısmında fotoğrafın orijinalliği hakkında kısa bilgi ver.
     `;
 
     const result = await model.generateContent([
@@ -66,11 +73,10 @@ export async function POST(request: Request) {
 
     const response = await result.response;
     const text = response.text();
-    
     const jsonMatch = text.match(/\{[\s\S]*\}/);
     const aiData = jsonMatch ? JSON.parse(jsonMatch[0]) : null;
 
-    if (!aiData) throw new Error("AI koordinat verisi üretemedi.");
+    if (!aiData) throw new Error("AI görsel analiz verisi oluşturamadı.");
 
     return NextResponse.json({
       success: true,
@@ -78,11 +84,10 @@ export async function POST(request: Request) {
         originalReading: parseFloat(currentReading),
         added: parseFloat(addedValue),
         finalReading: aiData.total || (parseFloat(currentReading) + parseFloat(addedValue)),
-        status: aiData.verified ? 'AI Akıllı Koordinat Tespiti' : 'Görsel Analiz Başarılı',
         aiMessage: aiData.ai_comment,
         coordinates: aiData.coordinates,
         renderStyle: aiData.style,
-        v2Engine: 'Gemini 1.5 Vision Engine'
+        v2Engine: 'Gemini 1.5 Pro Rendering Assistant'
       }
     });
 
