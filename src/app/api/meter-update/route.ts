@@ -14,24 +14,28 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Eksik veri' }, { status: 400 });
     }
 
-    const finalReading = (parseFloat(currentReading) + parseFloat(addedValue)).toFixed(3).replace('.', ',');
+    const finalValue = (parseFloat(currentReading) + parseFloat(addedValue)).toFixed(3);
 
-    // Gemini 1.5 Pro/Flash Vision are analysis models. 
-    // Real-time "Inpainting" (redrawing pixels) requires a dedicated Generative Image API (like Stability AI Edit/Inpaint).
-    // For this implementation, we use Gemini's precise analysis to guide our internal "MCE Graphics Engine V3".
-    
     if (!process.env.GEMINI_API_KEY) {
-      return NextResponse.json({
-        success: true,
-        data: {
-          originalReading: parseFloat(currentReading),
-          added: parseFloat(addedValue),
-          finalReading: parseFloat((parseFloat(currentReading) + parseFloat(addedValue)).toFixed(3)),
-          status: "Demo Modu",
-          aiMessage: "Görsel işleme motoru simülasyonu aktif.",
-          isGenerative: true
-        }
-      });
+        return NextResponse.json({
+            success: true,
+            data: {
+                originalReading: parseFloat(currentReading),
+                added: parseFloat(addedValue),
+                finalReading: parseFloat(finalValue),
+                status: "Demo Modu",
+                coordinates: { top: 50, left: 50, width: 40, height: 10 },
+                renderStyle: { 
+                    color: '#f0f0f0', 
+                    brightness: 1, 
+                    skew: 0, 
+                    bgTone: 'black',
+                    grainIntensity: 0.2,
+                    blurAmount: 0.3,
+                    redContrast: 1.2
+                }
+            }
+        });
     }
 
     const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
@@ -39,22 +43,34 @@ export async function POST(request: Request) {
     const base64Image = Buffer.from(imageData).toString('base64');
 
     const prompt = `
-      Bu bir sayaç görselidir. Görevin görseli "Generative Inpainting" (pikselleri yeniden boyama) süreci için analiz etmektir.
+      Bu bir sayaç görselidir. Görüntüyü profesyonel bir grafik editörü gibi analiz et.
+      SENİN GÖREVİN:
+      Rakam penceresinin (display window) koordinatlarını ve fotoğrafa özgü doku özelliklerini tespit etmek.
       
-      ANALİZ KRİTERLERİ:
-      1. Sayaç penceresindeki rakam kutusunun (tamburların) keskin koordinatlarını belirle.
-      2. Rakamların dokusunu (metalik, plastik, kabartma), etrafındaki toz/kir miktarını ve ışık yönünü analiz et.
-      3. YENİ DEĞER: ${finalReading}
+      ANALİZ EDİLECEK NOKTALAR:
+      1. coordinates: Sayaç penceresinin (rakamların olduğu alan) tam kutu koordinatları (top%, left%, width%, height%).
+      2. pixelStyle: 
+         - dominantBlackHex: Sayaçtaki 'siyah' tamburların tam HEX kodu (Örn: #0d0d0d).
+         - dominantRedHex: Sayaçtaki 'kırmızı' ondalık alanın tam HEX kodu (Örn: #a31a1a).
+         - digitColorHex: Rakamların rengi (Örn: #f2f2f2).
+         - noise: Fotoğrafın genel ISO gürültü seviyesi (0 ile 1 arası).
+         - blur: Fotoğrafın netlik seviyesi (0.1 ile 1.0 arası pixel değeri).
+         - perspectiveSkew: Fotoğrafın yan açısı (derece cinsinden skew).
+         - lightingGradient: Işığın geliş yönü (left-to-right, top-to-bottom, center).
       
-      YAPAY ZEKA TALİMATI (INPAINTING ENGINE):
-      "Orijinal rakam penceresini tamamen sil ve yerine ${finalReading} rakamlarını, görselin orijinal ISO gürültüsü, dokusu ve ışık kırılmalarıyla kusursuzca (font olarak değil, fiziksel nesne olarak) yeniden boya."
-      
-      YANIT FORMATI (JSON):
+      YANIT FORMATI (Sadece JSON):
       {
         "coordinates": { "top": number, "left": number, "width": number, "height": number },
-        "visual_fidelity": "high",
-        "ai_comment": string,
-        "total": number
+        "style": { 
+          "black": string, 
+          "red": string, 
+          "digits": string, 
+          "noise": number, 
+          "blur": number, 
+          "skew": number, 
+          "lightDir": string 
+        },
+        "comment": "Kısa teknik analiz"
       }
     `;
 
@@ -71,24 +87,20 @@ export async function POST(request: Request) {
     const response = await result.response;
     const aiData = JSON.parse(response.text().match(/\{[\s\S]*\}/)?.[0] || '{}');
 
-    // In a production environment with Stability AI:
-    // const editedImage = await stabilityInpaint(file, aiData.coordinates, finalReading);
-    // return Response(editedImage, { headers: { 'Content-Type': 'image/png' } });
-
     return NextResponse.json({
       success: true,
       data: {
         originalReading: parseFloat(currentReading),
         added: parseFloat(addedValue),
-        finalReading: aiData.total || (parseFloat(currentReading) + parseFloat(addedValue)),
-        aiMessage: aiData.ai_comment || "Doku analizi tamamlandı, pikseller yüksek sadakatle eşleştirildi.",
+        finalReading: parseFloat(finalValue),
+        aiMessage: aiData.comment,
         coordinates: aiData.coordinates,
-        isGenerative: true,
-        v2Engine: 'MCE Generative Inpainting Engine v3'
+        renderStyle: aiData.style,
+        v3Engine: 'MCE Pixel Reconstruction Engine v3.1'
       }
     });
 
   } catch (error: any) {
-    return NextResponse.json({ error: "İşleme Hatası: " + error.message }, { status: 500 });
+    return NextResponse.json({ error: "İşleme Hatası" }, { status: 500 });
   }
 }
