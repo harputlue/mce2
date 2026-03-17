@@ -154,7 +154,7 @@ export default function Home() {
                 <img src={previewUrl!} className="w-full brightness-[0.4] blur-[1px]" alt="Original blurred" />
                 <div className="absolute inset-0 flex flex-col items-center justify-center p-8 text-center space-y-4">
                   <div className="bg-indigo-600 px-6 py-2 rounded-lg font-black text-2xl shadow-xl border border-indigo-400 animate-pulse-slow">
-                    YENİ DEĞER: {result.finalReading.toFixed(2).replace('.', ',')}
+                    YENİ DEĞER: {result.finalReading.toFixed(3).replace('.', ',')}
                   </div>
                   <p className="text-slate-300 text-sm max-w-sm leading-relaxed italic">
                     {result.aiMessage}

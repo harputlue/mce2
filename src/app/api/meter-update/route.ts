@@ -42,7 +42,7 @@ export async function POST(request: Request) {
       Görevin:
       1. Görseldeki sayacın okunabilirliğini kontrol et.
       2. Kullanıcının girdiği ${currentReading} değerinin fotoğrafla uyuşup uyuşmadığını doğrula.
-      3. Toplam değeri hesapla: ${parseFloat(currentReading) + parseFloat(addedValue)}
+      3. Toplam değeri kesinlikle virgülden sonra 3 hane olacak şekilde hesapla: ${(parseFloat(currentReading) + parseFloat(addedValue)).toFixed(3)}
       4. Yeni fotoğrafın üretimi için görselin ışık, açı ve doku özelliklerini teknik olarak analiz et.
       Yanıtını JSON formatında şu anahtarlarla ver: 
       { "verified": boolean, "ai_comment": string, "total": number }
@@ -65,12 +65,14 @@ export async function POST(request: Request) {
     const jsonMatch = text.match(/\{[\s\S]*\}/);
     const aiData = jsonMatch ? JSON.parse(jsonMatch[0]) : { ai_comment: text, total: null, verified: false };
 
+    const finalTotal = aiData.total || (parseFloat(currentReading) + parseFloat(addedValue));
+
     return NextResponse.json({
       success: true,
       data: {
         originalReading: parseFloat(currentReading),
         added: parseFloat(addedValue),
-        finalReading: aiData.total || (parseFloat(currentReading) + parseFloat(addedValue)),
+        finalReading: parseFloat(finalTotal.toFixed(3)),
         status: aiData.verified ? 'AI Onaylı İşlem' : 'Görsel Analiz Tamamlandı',
         aiMessage: aiData.ai_comment,
         v2Engine: 'Gemini 1.5 Flash Integrated'
