@@ -111,7 +111,7 @@ export default function Home() {
         <header className="text-center mb-12 relative">
           <div className="absolute -top-8 left-1/2 -translate-x-1/2">
             <span className="bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-4 py-1 rounded-full text-[10px] font-black tracking-[0.3em] uppercase animate-pulse shadow-xl shadow-emerald-500/10">
-              v3.5 ULTRA-REALITY ENGINE ACTIVE
+              v3.6 PIXEL-PERFECT SEAMLESS ENGINE
             </span>
           </div>
           <h1 className="text-6xl font-black bg-gradient-to-r from-indigo-400 via-sky-400 to-emerald-400 bg-clip-text text-transparent mb-2 drop-shadow-sm">
@@ -153,7 +153,7 @@ export default function Home() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-2">
                   <label className="text-sm font-medium text-slate-400 uppercase tracking-widest flex items-center gap-2">
-                    1. Mevcut Okuma (Fotoğraftaki)
+                    1. Mevcut Okuma (Sol:5, Sağ:3)
                     {isScanning && (
                       <span className="flex items-center gap-1 text-emerald-400 text-[10px] animate-pulse font-bold">
                         <svg className="animate-spin h-3 w-3" viewBox="0 0 24 24">
@@ -198,11 +198,6 @@ export default function Home() {
           ) : (
             /* RESULT VIEW */
             <div className="space-y-8 animate-in fade-in slide-in-from-bottom-5 duration-500">
-              <div className="flex items-center gap-3 bg-emerald-500/10 border border-emerald-500/20 p-4 rounded-xl text-emerald-400 font-semibold mb-4">
-                <span className="text-xl">✓</span>
-                <span>Yapay Zeka Sunucusu Talebi Başarıyla İşledi</span>
-              </div>
-
               <div className="grid grid-cols-2 gap-4">
                 <div className="bg-slate-900/50 p-6 rounded-2xl border border-slate-800">
                   <p className="text-xs uppercase tracking-widest text-slate-500 mb-1">Mevcut Okuma</p>
@@ -216,24 +211,24 @@ export default function Home() {
                 </div>
               </div>
 
-              {/* DRAWABLE AREA */}
-              <div ref={downloadRef} className="relative rounded-2xl overflow-hidden border-4 border-slate-900 shadow-2xl bg-black select-none">
+              {/* DRAWABLE AREA - SEAMLESS FUSION V3.6 */}
+              <div ref={downloadRef} className="relative rounded-2xl overflow-hidden shadow-2xl bg-black select-none">
                 <img src={previewUrl!} className="w-full h-auto object-contain block" alt="Result original" />
                 
                 {/* Noise Filter */}
                 <svg className="hidden">
-                  <filter id="noiseFilter">
-                    <feTurbulence type="fractalNoise" baseFrequency="0.6" numOctaves="3" stitchTiles="stitch" />
+                  <filter id="seamlessNoise">
+                    <feTurbulence type="fractalNoise" baseFrequency="0.8" numOctaves="4" stitchTiles="stitch" />
                     <feColorMatrix type="saturate" values="0" />
                     <feComponentTransfer>
-                      <feFuncR type="linear" slope="0.4" />
-                      <feFuncG type="linear" slope="0.4" />
-                      <feFuncB type="linear" slope="0.4" />
+                      <feFuncR type="linear" slope="0.3" />
+                      <feFuncG type="linear" slope="0.3" />
+                      <feFuncB type="linear" slope="0.3" />
                     </feComponentTransfer>
                   </filter>
                 </svg>
 
-                {/* PIXEL FUSION ELEMENT (V3.5) */}
+                {/* PIXEL FUSION ELEMENT (V3.6) */}
                 {typeof result.finalReading === 'number' && (
                   <div 
                     style={{
@@ -254,65 +249,90 @@ export default function Home() {
                       display: 'flex',
                       width: '100%',
                       height: '100%',
-                      filter: `blur(${result.renderStyle?.blur || 0.45}px) contrast(1.1)`,
-                      gap: `${(result.design?.spacing || 0.12) * 5}px`,
+                      filter: `blur(${result.renderStyle?.blur || 0.45}px) contrast(1.1) saturate(0.9)`, // Renk doygunluğunu fotoğrafla eşlemek için azalttık
+                      // "Kare kare" görünümü yok etmek için padding ve gap değerlerini mekanik tambur yapısına çektik
                     }}>
-                      {result.finalReading.toFixed(3).replace('.', ',').split('').map((char: string, idx: number) => {
-                        const isComma = char === ',';
-                        const isDecimal = idx > result.finalReading.toFixed(3).length - 4;
-                        return (
-                          <div 
-                            key={idx}
-                            style={{
-                              flex: isComma ? '0.15' : '1',
-                              display: 'flex',
-                              alignItems: 'center',
-                              justifyContent: 'center',
-                              position: 'relative',
-                              backgroundColor: isComma ? 'transparent' : (isDecimal ? (result.renderStyle?.red || '#911212') : (result.renderStyle?.black || '#131314')),
-                              maskImage: isComma ? 'none' : 'radial-gradient(ellipse at center, black 85%, transparent 100%)',
-                              WebkitMaskImage: isComma ? 'none' : 'radial-gradient(ellipse at center, black 85%, transparent 100%)',
-                              boxShadow: isComma ? 'none' : 'inset 0 0 15px rgba(0,0,0,0.95)',
-                              borderRadius: '1px',
-                              overflow: 'hidden',
-                            }}
-                          >
-                            {!isComma && (
-                              <div className="absolute inset-0 z-0 opacity-80">
-                                <div className="absolute inset-x-0 top-0 h-1/2 bg-gradient-to-b from-black/85 via-black/25 to-transparent" />
-                                <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black/85 via-black/25 to-transparent" />
-                                <div className="absolute inset-0 opacity-20" style={{ filter: 'url(#noiseFilter)', mixBlendMode: 'overlay' }} />
-                              </div>
-                            )}
-                            <span style={{ 
-                              fontSize: isComma ? 'min(1.5vw, 14px)' : 'min(3.5vw, 32px)',
-                              fontFamily: 'Inter, system-ui, sans-serif',
-                              fontWeight: '900',
-                              color: isComma ? 'transparent' : (result.renderStyle?.ink || '#dadada'),
-                              mixBlendMode: 'overlay',
-                              position: 'relative',
-                              zIndex: 40,
-                              textShadow: isComma ? 'none' : `1px 1px 1.5px rgba(0,0,0,0.9)`,
-                              opacity: 0.92,
-                              transform: isComma ? 'none' : 'scaleY(1.1) scaleX(0.92)',
-                              letterSpacing: '-0.06em'
-                            }}>
-                              {char === ',' ? '' : char}
-                            </span>
-                            {!isComma && (
-                              <div className="absolute inset-0 z-50 bg-gradient-to-tr from-transparent via-white/5 to-transparent opacity-30 mix-blend-screen pointer-events-none" />
-                            )}
-                          </div>
-                        );
-                      })}
+                      {(() => {
+                        // 5+3 KURALI UYGULAMASI (Kusursuz Hizalama)
+                        const [intPart, decPart] = result.finalReading.toFixed(3).split('.');
+                        const paddedInt = intPart.padStart(5, '0').slice(-5);
+                        const paddedDec = decPart.padEnd(3, '0').slice(0, 3);
+                        const digits = [...paddedInt.split(''), ',', ...paddedDec.split('')];
+
+                        return digits.map((char: string, idx: number) => {
+                          const isComma = char === ',';
+                          const isDecimal = idx > 5;
+                          
+                          return (
+                            <div 
+                              key={idx}
+                              style={{
+                                flex: isComma ? '0.08' : '1', // Virgül alanını çok daralttık
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                position: 'relative',
+                                // Orijinal Sayaç Rengi ile Fusion
+                                backgroundColor: isComma ? 'transparent' : (isDecimal ? (result.renderStyle?.red || '#911212') : (result.renderStyle?.black || '#131314')),
+                                height: '100%',
+                                // Kutu görünümünü yok eden "Seamless Border" tekniği
+                                borderRight: isComma ? 'none' : '0.5px solid rgba(0,0,0,0.15)',
+                                overflow: 'hidden'
+                              }}
+                            >
+                              {!isComma && (
+                                <div className="absolute inset-0 z-0 opacity-100">
+                                   {/* Mekanik Derinlik Gölgesi (Üst ve Alt Oklüzyon) */}
+                                  <div className="absolute inset-x-0 top-0 h-1/3 bg-gradient-to-b from-black/90 via-black/40 to-transparent z-10" />
+                                  <div className="absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-black/90 via-black/40 to-transparent z-10" />
+                                  
+                                  {/* ISO Kumlanması (Tüm Tambura Yayılması) */}
+                                  <div className="absolute inset-0 opacity-[0.14]" style={{ filter: 'url(#seamlessNoise)', mixBlendMode: 'overlay' }} />
+                                </div>
+                              )}
+
+                              <span style={{ 
+                                fontSize: isComma ? '0' : 'min(3.6vw, 32px)',
+                                fontFamily: '"Arial", sans-serif', // Daha standart/mekanik bir font
+                                fontWeight: '900',
+                                color: isComma ? 'transparent' : (result.renderStyle?.ink || '#dadada'),
+                                // DOKU KARŞIMI: Rakamları piksellerin içine gömer (V3.6)
+                                mixBlendMode: 'hard-light',
+                                position: 'relative',
+                                zIndex: 40,
+                                opacity: 0.88,
+                                transform: 'scaleY(1.15) scaleX(0.9)',
+                                letterSpacing: '-0.02em',
+                                textShadow: isComma ? 'none' : '0.5px 0.5px 0.5px rgba(255,255,255,0.05), -0.5px -0.5px 0.5px rgba(0,0,0,0.4)',
+                              }}>
+                                {char === ',' ? '' : char}
+                              </span>
+
+                              {/* Işık Yansıması (Environmental Highlighting) */}
+                              {!isComma && (
+                                <div className="absolute inset-0 z-50 bg-gradient-to-tr from-transparent via-white/5 to-transparent opacity-20 mix-blend-screen pointer-events-none" />
+                              )}
+                            </div>
+                          );
+                        });
+                      })()}
                     </div>
+
+                    {/* ÇERÇEVE GÖLGESİ (Pencerenin Sayaç Üzerindeki Oklüzyonu - Kutu görüntüsünü bitiren ana dokunuş) */}
+                    <div className="absolute inset-0 z-[60] shadow-[inset_0_0_20px_rgba(0,0,0,1)] pointer-events-none border border-black/20" />
                   </div>
                 )}
-                <div className="absolute inset-0 z-50 pointer-events-none bg-gradient-to-br from-white/10 via-transparent to-black/20 opacity-35 mix-blend-soft-light" />
-                <div className="absolute bottom-0 left-0 w-full bg-gradient-to-t from-black/95 via-black/40 to-transparent p-4 z-60 text-center">
-                   <p className="text-slate-500 text-[9px] uppercase tracking-[0.5em] font-black opacity-40">
-                    MCE V3.5 • ULTRA-REALITY RECONSTRUCTION
-                  </p>
+
+                {/* Koruyucu Toz ve Çizik Katmanı (Ultra-Reality) */}
+                <div className="absolute inset-0 z-[70] pointer-events-none opacity-20 mix-blend-overlay" style={{ filter: 'url(#seamlessNoise)' }} />
+                
+                {/* Genel Atmosferik Cam Parlaması */}
+                <div className="absolute inset-0 z-[80] pointer-events-none bg-gradient-to-br from-white/10 via-transparent to-black/30 opacity-40 mix-blend-soft-light" />
+                
+                <div className="absolute bottom-0 left-0 w-full bg-gradient-to-t from-black/95 via-black/40 to-transparent p-4 z-[90] text-center">
+                   <p className="text-slate-500 text-[9px] uppercase tracking-[0.6em] font-black opacity-30">
+                    MCE V3.6 • FINAL SEAMLESS RECONSTRUCTION
+                   </p>
                 </div>
               </div>
 

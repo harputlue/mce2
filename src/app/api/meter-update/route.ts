@@ -50,32 +50,27 @@ export async function POST(request: Request) {
       HEDEF: Orijinal rakamların yerine geçecek YENİ rakamların (${finalValue.replace('.', ',')}) 
       fotoğrafın bir parçası gibi görünmesini sağlamak için teknik veriler üretmek.
       
+      ÖNEMLİ BİLGİ: Bu sayaçta DAİMA virgülün solunda 5 hane, sağında 3 hane (toplam 8 rakam) bulunmaktadır. 
+      Analizini bu 8 haneli pencereye göre yap.
+      
       ANALİZ KRİTERLERİ:
-      1. coordinates: Rakamların (hem siyah hem kırmızı kısım toplamı) tam kapsama alanı (top%, left%, width%, height%).
-      2. meterDesign: 
-         - integerDigitsCount: Siyah kısımdaki toplam hane sayısı.
-         - decimalDigitsCount: Kırmızı kısımdaki toplam hane sayısı.
-         - spacing: Rakamlar arasındaki mekanik boşluk seviyesi (0-1 arası).
-      3. colorProfile:
+      1. coordinates: 8 haneli pencerenin (5 siyah + 3 kırmızı hane toplamı) tam kapsama alanı (top%, left%, width%, height%).
+      2. colorProfile:
          - weatheredBlackHex: Güneşten solmuş siyah tambur rengi (Örn: #1a1a1b).
          - fadedRedHex: Solmuş kırmızı tambur rengi (Örn: #911212).
-         - digitInkColor: Rakamların tam rengi (Saf beyaz değildir, genelde krem rengine yakındır).
-      4. optics:
+         - digitInkColor: Rakamların tam rengi (Özellikle solmuş krem/beyaz tonu).
+      3. optics:
          - focalBlur: Fotoğrafın o bölgesindeki netlik bozulması (0.0 - 2.0 pixel).
-         - reflectionIntensity: Camın üzerindeki parlamanın gücü (0.0 - 1.0).
-         - noisePattern: ISO kumlanma yoğunluğu.
+         - skew: Fotoğrafın çekim açısı (perspektif eğimi).
       
       YANIT FORMATI (JSON):
       {
         "coordinates": { "top": number, "left": number, "width": number, "height": number },
-        "design": { "integers": number, "decimals": number, "spacing": number },
         "style": { 
           "black": string, 
           "red": string, 
           "ink": string, 
           "blur": number, 
-          "noise": number, 
-          "reflection": number,
           "skew": number
         },
         "ai_note": "Analiz detayı"
