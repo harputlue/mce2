@@ -106,7 +106,12 @@ export default function Home() {
   return (
     <main className="min-h-screen flex flex-col items-center justify-center p-6 bg-slate-950 text-slate-50">
       <div className="max-w-3xl w-full">
-        <header className="text-center mb-12">
+        <header className="text-center mb-12 relative">
+          <div className="absolute -top-8 left-1/2 -translate-x-1/2">
+            <span className="bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-4 py-1 rounded-full text-[10px] font-black tracking-[0.3em] uppercase animate-pulse shadow-[0_0_15px_rgba(16,185,129,0.1)]">
+              v3.4 FINAL PIXEL ENGINE ACTIVE
+            </span>
+          </div>
           <h1 className="text-6xl font-black bg-gradient-to-r from-indigo-400 via-sky-400 to-emerald-400 bg-clip-text text-transparent mb-2 drop-shadow-sm">
             MCE V3 Motoru
           </h1>
