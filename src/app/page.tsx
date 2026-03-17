@@ -64,13 +64,11 @@ export default function Home() {
     if (!downloadRef.current) return;
     
     try {
-      console.log("Starting image capture with dom-to-image...");
+      console.log("MCE v2.1: Starting dom-to-image capture...");
       const dataUrl = await domtoimage.toPng(downloadRef.current, {
         quality: 1,
         bgcolor: '#000000',
-        style: {
-          transform: 'scale(1)', // Ensure no zoom interference
-        }
+        cacheBust: true, // Cache sorunlarını engellemek için
       });
       
       const link = document.createElement('a');
@@ -80,7 +78,7 @@ export default function Home() {
       console.log("Download successful");
     } catch (err: any) {
       console.error("Capture error:", err);
-      alert(`İndirme hatası: ${err.message || 'Teknik bir sorun oluştu'}. Lütfen tekrar deneyin.`);
+      alert(`İndirme Hatası (v2.1): ${err.message}. \n\nEğer 'lab' hatası alıyorsanız lütfen tarayıcı sekmesini kapatıp tekrar açın veya CMD+Shift+R ile sert yenileme yapın.`);
     }
   };
 
