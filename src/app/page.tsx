@@ -184,14 +184,18 @@ export default function Home() {
                     <feTurbulence type="fractalNoise" baseFrequency="0.6" numOctaves="3" stitchTiles="stitch" />
                     <feColorMatrix type="saturate" values="0" />
                     <feComponentTransfer>
-                      <feFuncR type="linear" slope="0.2" />
-                      <feFuncG type="linear" slope="0.2" />
-                      <feFuncB type="linear" slope="0.2" />
+                      <feFuncR type="linear" slope="0.4" />
+                      <feFuncG type="linear" slope="0.4" />
+                      <feFuncB type="linear" slope="0.4" />
                     </feComponentTransfer>
+                  </filter>
+                  <filter id="bloom">
+                    <feGaussianBlur stdDeviation="1.5" result="blur" />
+                    <feComposite in="SourceGraphic" in2="blur" operator="over" />
                   </filter>
                 </svg>
 
-                {/* AI Tarafından Belirlenen Mekanik Tambur Katmanı (Tamamen Kapalı) */}
+                {/* AI Tarafından Belirlenen Mekanik Tambur Katmanı - Generative Pixel Mimic */}
                 <div 
                   style={{
                     position: 'absolute',
@@ -205,20 +209,20 @@ export default function Home() {
                     justifyContent: 'center',
                     pointerEvents: 'none',
                     // Altındaki rakamı tamamen gizlemek için tam opak (alpha 1)
-                    backgroundColor: result.renderStyle?.bgTone === 'white' ? '#f5f5f5' : '#121212',
-                    boxShadow: 'inset 0 0 15px rgba(0,0,0,1), 0 0 5px rgba(0,0,0,0.5)',
+                    backgroundColor: result.renderStyle?.bgTone === 'white' ? '#fcfcfc' : '#111111',
+                    boxShadow: 'inset 0 0 15px rgba(0,0,0,1), 0 0 4px rgba(0,0,0,0.4)',
+                    overflow: 'hidden',
                   }}
-                  className="overflow-hidden rounded-[2px]"
+                  className="rounded-[1px]"
                 >
                   {/* Texture Overlay (Gürültü/Noise) - Fotoğraf dokusuna uyum için */}
-                  <div className="absolute inset-0 opacity-20 pointer-events-none" style={{ filter: 'url(#noiseFilter)', mixBlendMode: 'overlay' }} />
+                  <div className="absolute inset-0 opacity-25 pointer-events-none" style={{ filter: 'url(#noiseFilter)', mixBlendMode: 'overlay' }} />
 
                   <div style={{
                     display: 'flex',
                     width: '100%',
                     height: '100%',
                     filter: `blur(${result.renderStyle?.blur || 0.2}px) brightness(${result.renderStyle?.brightness || 1}) contrast(1.1)`,
-                    // mixBlendMode 'normal' yapıyoruz ki altındaki harf kesinlikle gözükmesin
                     padding: '0 1px'
                   }}>
                     {result.finalReading.toFixed(3).replace('.', ',').split('').map((char: string, idx: number) => {
@@ -228,36 +232,39 @@ export default function Home() {
                         <div 
                           key={idx}
                           style={{
-                            flex: isComma ? '0.3' : '1',
+                            flex: isComma ? '0.4' : '1',
                             display: 'flex',
                             alignItems: 'center',
                             justifyContent: 'center',
-                            // Tambur arası fiziksel boşluklar
-                            borderRight: (!isComma && idx < result.finalReading.toFixed(3).length - 1) ? '1.5px solid rgba(0,0,0,0.8)' : 'none',
-                            color: isComma ? (result.renderStyle?.bgTone === 'white' ? '#000' : '#fff') : (isDecimal ? '#ff1e1e' : (result.renderStyle?.color || '#ffffff')),
+                            // Tambur arası fiziksel dar boşluklar
+                            borderRight: (!isComma && idx < result.finalReading.toFixed(3).length - 1) ? '1px solid rgba(0,0,0,0.95)' : 'none',
+                            color: isComma ? (result.renderStyle?.bgTone === 'white' ? '#111' : '#eee') : (isDecimal ? '#ea2626' : (result.renderStyle?.color || '#eeeeee')),
                             // Ondalık hanelerin (kırmızı olanlar) arka plan dokusu
                             background: isComma ? 'transparent' : (isDecimal ? (result.renderStyle?.bgTone === 'white' ? '#fff0f0' : '#1a0000') : 'none'),
                             fontSize: 'min(2.8vw, 24px)',
-                            fontFamily: '"Courier New", Courier, monospace', // Mekanik görünümlü font
+                            fontFamily: '"Courier New", Courier, monospace',
                             fontWeight: '900',
-                            textShadow: result.renderStyle?.bgTone === 'white' ? 'none' : '0 0 1px rgba(255,255,255,0.3)',
+                            textShadow: result.renderStyle?.bgTone === 'white' ? 'none' : '0 0 1px rgba(255,255,255,0.2)',
                             position: 'relative',
                             zIndex: 1,
                           }}
                         >
-                          {/* Tambur Gölgelendirmesi (Üst ve Alt) */}
+                          {/* Tambur Gölgelendirmesi - 3D Silindir Hissi */}
                           {!isComma && (
                             <>
-                              <div className="absolute inset-x-0 top-0 h-1/3 bg-gradient-to-b from-black/60 to-transparent pointer-events-none z-10" />
-                              <div className="absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-black/60 to-transparent pointer-events-none z-10" />
+                              <div className="absolute inset-x-0 top-0 h-1/3 bg-gradient-to-b from-black/70 to-transparent pointer-events-none z-10" />
+                              <div className="absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-black/70 to-transparent pointer-events-none z-10" />
                             </>
                           )}
-                          <span style={{ transform: 'scaleY(1.1)' }}>{char}</span>
+                          <span style={{ transform: 'scaleY(1.05)', filter: 'url(#bloom)' }}>{char}</span>
                         </div>
                       );
                     })}
                   </div>
                 </div>
+
+                {/* Plastik Kapak / Cam Cam Efekti (Parlama) */}
+                <div className="absolute inset-0 pointer-events-none bg-gradient-to-tr from-transparent via-white/10 to-transparent opacity-40 mix-blend-overlay" />
 
                 {/* Plastik Kapak / Cam Parlaması Efekti */}
                 <div className="absolute inset-0 pointer-events-none bg-gradient-to-tr from-transparent via-white/5 to-transparent opacity-30" />
