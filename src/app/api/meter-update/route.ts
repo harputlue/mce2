@@ -17,7 +17,27 @@ export async function POST(request: Request) {
     const finalValue = (parseFloat(currentReading) + parseFloat(addedValue)).toFixed(3);
 
     if (!process.env.GEMINI_API_KEY) {
-        return NextResponse.json({ success: true, data: { demo: true } });
+        return NextResponse.json({ 
+            success: true, 
+            data: { 
+                originalReading: parseFloat(currentReading),
+                added: parseFloat(addedValue),
+                finalReading: parseFloat(finalValue),
+                aiMessage: "Demo Modu: AI Analizi yapılmadı (API Anahtarı eksik).",
+                coordinates: { top: 48, left: 45, width: 38, height: 8 },
+                design: { integers: 5, decimals: 3, spacing: 0.15 },
+                renderStyle: { 
+                    black: '#131314', 
+                    red: '#911212', 
+                    ink: '#dadada', 
+                    blur: 0.4, 
+                    noise: 0.2, 
+                    reflection: 0.3,
+                    skew: 0 
+                },
+                v3Engine: 'MCE Ultra-Reality V3.5 (Demo)'
+            } 
+        });
     }
 
     const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });

@@ -110,7 +110,7 @@ export default function Home() {
       <div className="max-w-3xl w-full">
         <header className="text-center mb-12 relative">
           <div className="absolute -top-8 left-1/2 -translate-x-1/2">
-            <span className="bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-4 py-1 rounded-full text-[10px] font-black tracking-[0.3em] uppercase animate-pulse shadow-xl shadow-emerald-500/20">
+            <span className="bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-4 py-1 rounded-full text-[10px] font-black tracking-[0.3em] uppercase animate-pulse shadow-xl shadow-emerald-500/10">
               v3.5 ULTRA-REALITY ENGINE ACTIVE
             </span>
           </div>
@@ -206,19 +206,21 @@ export default function Home() {
               <div className="grid grid-cols-2 gap-4">
                 <div className="bg-slate-900/50 p-6 rounded-2xl border border-slate-800">
                   <p className="text-xs uppercase tracking-widest text-slate-500 mb-1">Mevcut Okuma</p>
-                  <p className="text-2xl font-black text-slate-200">{result.originalReading.toString().replace('.', ',')} m³</p>
+                  <p className="text-2xl font-black text-slate-200">{result.originalReading?.toString().replace('.', ',')} m³</p>
                 </div>
                 <div className="bg-slate-900/50 p-6 rounded-2xl border border-slate-800">
                   <p className="text-xs uppercase tracking-widest text-slate-500 mb-1">Yeni Hedef</p>
-                  <p className="text-2xl font-black text-emerald-400">{result.finalReading.toFixed(3).replace('.', ',')} m³</p>
+                  <p className="text-2xl font-black text-emerald-400">
+                    {typeof result.finalReading === 'number' ? result.finalReading.toFixed(3).replace('.', ',') : '...'} m³
+                  </p>
                 </div>
               </div>
 
-              {/* DRAWABLE AREA - Profesyonel Mekanik Sayaç Render Modu */}
+              {/* DRAWABLE AREA */}
               <div ref={downloadRef} className="relative rounded-2xl overflow-hidden border-4 border-slate-900 shadow-2xl bg-black select-none">
-                <img src={previewUrl!} className="w-full h-auto object-contain block" alt="Result original" crossOrigin="anonymous" />
+                <img src={previewUrl!} className="w-full h-auto object-contain block" alt="Result original" />
                 
-                {/* Noise Filter for Texture Mapping */}
+                {/* Noise Filter */}
                 <svg className="hidden">
                   <filter id="noiseFilter">
                     <feTurbulence type="fractalNoise" baseFrequency="0.6" numOctaves="3" stitchTiles="stitch" />
@@ -229,101 +231,86 @@ export default function Home() {
                       <feFuncB type="linear" slope="0.4" />
                     </feComponentTransfer>
                   </filter>
-                  <filter id="bloom">
-                    <feGaussianBlur stdDeviation="1.5" result="blur" />
-                    <feComposite in="SourceGraphic" in2="blur" operator="over" />
-                  </filter>
                 </svg>
 
-                {/* ULTRA-REALITY RECONSTRUCTION ENGINE V3.5 (Pixel Fusion Mode) */}
-                <div 
-                  style={{
-                    position: 'absolute',
-                    top: `${result.coordinates?.top || 50}%`,
-                    left: `${result.coordinates?.left || 50}%`,
-                    width: `${result.coordinates?.width || 30}%`,
-                    height: `${result.coordinates?.height || 8}%`,
-                    transform: `translate(-50%, -50%) skew(${result.renderStyle?.skew || 0}deg)`,
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    pointerEvents: 'none',
-                    zIndex: 20,
-                  }}
-                >
-                  <div style={{
-                    display: 'flex',
-                    width: '100%',
-                    height: '100%',
-                    // Odak Uyumu (Focal Blur) - Sayıların fotoğrafın netliğine 'kaynaması' için (V3.5)
-                    filter: `blur(${result.renderStyle?.blur || 0.45}px) contrast(1.05) brightness(1.02)`,
-                    gap: `${(result.design?.spacing || 0.12) * 5}px`,
-                  }}>
-                    {result.finalReading.toFixed(3).replace('.', ',').split('').map((char: string, idx: number) => {
-                      const isComma = char === ',';
-                      const isDecimal = idx > result.finalReading.toFixed(3).length - 4;
-                      
-                      return (
-                        <div 
-                          key={idx}
-                          style={{
-                            flex: isComma ? '0.15' : '1',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            position: 'relative',
-                            // Orijinal Sayaç Dokusuyla Harmanlama (Seamless Fusion)
-                            backgroundColor: isComma ? 'transparent' : (isDecimal ? (result.renderStyle?.red || '#911212') : (result.renderStyle?.black || '#131314')),
-                            // Tamburun kenarlarını fotoğrafa eriten radyal geçiş (V3.5)
-                            maskImage: isComma ? 'none' : 'radial-gradient(ellipse at center, black 85%, transparent 100%)',
-                            boxShadow: isComma ? 'none' : 'inset 0 0 15px rgba(0,0,0,0.95)',
-                            borderRadius: '1px',
-                            overflow: 'hidden',
-                          }}
-                        >
-                          {/* Tambur Doku ve Işık Detayları */}
-                          {!isComma && (
-                            <div className="absolute inset-0 z-0">
-                               {/* Tambur Yuvarlaklığı (Üst/Alt Fiziksel Karartma) */}
-                              <div className="absolute inset-x-0 top-0 h-1/2 bg-gradient-to-b from-black/85 via-black/25 to-transparent z-10" />
-                              <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black/85 via-black/25 to-transparent z-10" />
-                              {/* Fotoğraf Kumlanması ve Doku Geçirgenliği */}
-                              <div className="absolute inset-0 opacity-20 z-20" style={{ filter: 'url(#noiseFilter)', mixBlendMode: 'overlay' }} />
-                            </div>
-                          )}
-
-                          <span style={{ 
-                            fontSize: isComma ? 'min(1.5vw, 14px)' : 'min(3.5vw, 32px)',
-                            fontFamily: 'Inter, system-ui, sans-serif',
-                            fontWeight: '900',
-                            // Rakamların "mürekkep" gibi değil, kazınmış gibi görünmesi için (Multiply Blending)
-                            color: isComma ? 'transparent' : (result.renderStyle?.ink || '#dadada'),
-                            mixBlendMode: 'overlay', // ALTINDAKİ FOTOĞRAFIN DOKUSUNU GÖSTERİR (V3.5)
-                            position: 'relative',
-                            zIndex: 40,
-                            textShadow: isComma ? 'none' : `1px 1px 1.5px rgba(0,0,0,0.9)`,
-                            opacity: 0.92,
-                            transform: isComma ? 'none' : 'scaleY(1.1) scaleX(0.92)',
-                            letterSpacing: '-0.06em'
-                          }}>
-                            {char === ',' ? '' : char}
-                          </span>
-
-                          {/* Işık Yansıması (Environmental Bloom) */}
-                          {!isComma && (
-                            <div className="absolute inset-0 z-50 bg-gradient-to-tr from-transparent via-white/5 to-transparent opacity-30 mix-blend-screen pointer-events-none" />
-                          )}
-                        </div>
-                      );
-                    })}
+                {/* PIXEL FUSION ELEMENT (V3.5) */}
+                {typeof result.finalReading === 'number' && (
+                  <div 
+                    style={{
+                      position: 'absolute',
+                      top: `${result.coordinates?.top || 50}%`,
+                      left: `${result.coordinates?.left || 50}%`,
+                      width: `${result.coordinates?.width || 30}%`,
+                      height: `${result.coordinates?.height || 8}%`,
+                      transform: `translate(-50%, -50%) skew(${result.renderStyle?.skew || 0}deg)`,
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      pointerEvents: 'none',
+                      zIndex: 20,
+                    }}
+                  >
+                    <div style={{
+                      display: 'flex',
+                      width: '100%',
+                      height: '100%',
+                      filter: `blur(${result.renderStyle?.blur || 0.45}px) contrast(1.1)`,
+                      gap: `${(result.design?.spacing || 0.12) * 5}px`,
+                    }}>
+                      {result.finalReading.toFixed(3).replace('.', ',').split('').map((char: string, idx: number) => {
+                        const isComma = char === ',';
+                        const isDecimal = idx > result.finalReading.toFixed(3).length - 4;
+                        return (
+                          <div 
+                            key={idx}
+                            style={{
+                              flex: isComma ? '0.15' : '1',
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              position: 'relative',
+                              backgroundColor: isComma ? 'transparent' : (isDecimal ? (result.renderStyle?.red || '#911212') : (result.renderStyle?.black || '#131314')),
+                              maskImage: isComma ? 'none' : 'radial-gradient(ellipse at center, black 85%, transparent 100%)',
+                              WebkitMaskImage: isComma ? 'none' : 'radial-gradient(ellipse at center, black 85%, transparent 100%)',
+                              boxShadow: isComma ? 'none' : 'inset 0 0 15px rgba(0,0,0,0.95)',
+                              borderRadius: '1px',
+                              overflow: 'hidden',
+                            }}
+                          >
+                            {!isComma && (
+                              <div className="absolute inset-0 z-0 opacity-80">
+                                <div className="absolute inset-x-0 top-0 h-1/2 bg-gradient-to-b from-black/85 via-black/25 to-transparent" />
+                                <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black/85 via-black/25 to-transparent" />
+                                <div className="absolute inset-0 opacity-20" style={{ filter: 'url(#noiseFilter)', mixBlendMode: 'overlay' }} />
+                              </div>
+                            )}
+                            <span style={{ 
+                              fontSize: isComma ? 'min(1.5vw, 14px)' : 'min(3.5vw, 32px)',
+                              fontFamily: 'Inter, system-ui, sans-serif',
+                              fontWeight: '900',
+                              color: isComma ? 'transparent' : (result.renderStyle?.ink || '#dadada'),
+                              mixBlendMode: 'overlay',
+                              position: 'relative',
+                              zIndex: 40,
+                              textShadow: isComma ? 'none' : `1px 1px 1.5px rgba(0,0,0,0.9)`,
+                              opacity: 0.92,
+                              transform: isComma ? 'none' : 'scaleY(1.1) scaleX(0.92)',
+                              letterSpacing: '-0.06em'
+                            }}>
+                              {char === ',' ? '' : char}
+                            </span>
+                            {!isComma && (
+                              <div className="absolute inset-0 z-50 bg-gradient-to-tr from-transparent via-white/5 to-transparent opacity-30 mix-blend-screen pointer-events-none" />
+                            )}
+                          </div>
+                        );
+                      })}
+                    </div>
                   </div>
-                </div>
-
-                {/* Koruyucu Cam Yansıması ve Atmosferik Derinlik */}
+                )}
                 <div className="absolute inset-0 z-50 pointer-events-none bg-gradient-to-br from-white/10 via-transparent to-black/20 opacity-35 mix-blend-soft-light" />
-                
-                <div className="absolute bottom-0 left-0 w-full bg-gradient-to-t from-black/95 via-black/40 to-transparent p-4 z-60">
-                   <p className="text-slate-500 text-[9px] uppercase tracking-[0.5em] text-center font-black opacity-40">
+                <div className="absolute bottom-0 left-0 w-full bg-gradient-to-t from-black/95 via-black/40 to-transparent p-4 z-60 text-center">
+                   <p className="text-slate-500 text-[9px] uppercase tracking-[0.5em] font-black opacity-40">
                     MCE V3.5 • ULTRA-REALITY RECONSTRUCTION
                   </p>
                 </div>
