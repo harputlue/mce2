@@ -228,7 +228,7 @@ export default function Home() {
                   </filter>
                 </svg>
 
-                {/* PIXEL RECONSTRUCTION ENGINE V3.3 - Environmental Light Mapping */}
+                {/* PIXEL PERFECT ENGINE V3.4 - Mechanical Realism */}
                 <div 
                   style={{
                     position: 'absolute',
@@ -243,67 +243,63 @@ export default function Home() {
                     pointerEvents: 'none',
                     zIndex: 20,
                   }}
-                  className="rounded-[1.5px] overflow-hidden"
+                  className="overflow-hidden"
                 >
                   <div style={{
                     display: 'flex',
                     width: '100%',
                     height: '100%',
-                    filter: `blur(${result.renderStyle?.blur || 0.2}px) brightness(${result.renderStyle?.brightness || 1}) contrast(1.1)`,
-                    gap: '1.2px',
-                    padding: '0 0.5px'
+                    filter: `blur(${result.renderStyle?.blur || 0.4}px) contrast(1.1)`,
+                    gap: `${(result.design?.spacing || 0.1) * 4}px`,
+                    padding: '0 1px'
                   }}>
                     {result.finalReading.toFixed(3).replace('.', ',').split('').map((char: string, idx: number) => {
                       const isComma = char === ',';
                       const isDecimal = idx > result.finalReading.toFixed(3).length - 4;
-                      const jitter = isComma ? 0 : (Math.sin(idx * 7) * 1.5); // Mekanik hata payı
-                      
-                      // Işık Yönü Hesaplama (Gemini'den gelen lightDir'e göre)
-                      const lightGradient = result.renderStyle?.lightDir === 'top-to-bottom' 
-                        ? 'bg-gradient-to-b from-white/10 via-transparent to-black/30'
-                        : 'bg-gradient-to-tr from-black/20 via-transparent to-white/10';
-
+                      // Her bir rakam tamburunu bağımsız bir nesne olarak ele alıyoruz
                       return (
                         <div 
                           key={idx}
                           style={{
-                            flex: isComma ? '0.35' : '1',
+                            flex: isComma ? '0.2' : '1',
                             display: 'flex',
                             alignItems: 'center',
                             justifyContent: 'center',
                             position: 'relative',
-                            backgroundColor: isComma ? 'transparent' : (isDecimal ? (result.renderStyle?.red || '#a31a1a') : (result.renderStyle?.black || '#0d0d0d')),
-                            boxShadow: isComma ? 'none' : 'inset 0 0 12px rgba(0,0,0,0.9), 0 0.5px 1px rgba(255,255,255,0.1)',
-                            transform: `translateY(${jitter}px)`,
+                            // Orijinal fotoğraftaki kirlenmiş/solmuş renklerle boyama
+                            backgroundColor: isComma ? 'transparent' : (isDecimal ? (result.renderStyle?.red || '#a31a1a') : (result.renderStyle?.black || '#1a1a1b')),
+                            boxShadow: isComma ? 'none' : 'inset 0 0 12px rgba(0,0,0,1), 0 0.5px 1px rgba(255,255,255,0.05)',
+                            borderRadius: '1.5px',
+                            overflow: 'hidden',
                             zIndex: isComma ? 5 : 10
                           }}
                         >
-                          {/* Tambur Doku ve Derinlik */}
+                          {/* Tambur Doku ve Derinlik (V3.4 Engine) */}
                           {!isComma && (
                             <div className="absolute inset-0 z-0">
-                               {/* Tambur Yuvarlaklığı (Dikey Gölge) */}
-                              <div className="absolute inset-x-0 top-0 h-1/2 bg-gradient-to-b from-black/85 via-black/30 to-transparent z-10" />
-                              <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black/85 via-black/30 to-transparent z-10" />
-                              {/* Ortam Işığı (Environmental Light) */}
-                              <div className={`absolute inset-0 opacity-40 z-20 ${lightGradient}`} />
-                              {/* Kir/Doku Katmanı */}
+                               {/* 3D Tambur Yuvarlaklığı (Üst/Alt Gölge) */}
+                              <div className="absolute inset-x-0 top-0 h-2/5 bg-gradient-to-b from-black/85 via-black/30 to-transparent z-10" />
+                              <div className="absolute inset-x-0 bottom-0 h-2/5 bg-gradient-to-t from-black/85 via-black/30 to-transparent z-10" />
+                              {/* Tambur Üstü Yansıma (Highlight) */}
+                              <div className="absolute inset-x-0 top-1/4 h-px bg-white/10 z-20" />
+                              {/* Fotoğraf Toz/ISO Kumlanması */}
                               <div className="absolute inset-0 opacity-20 z-30" style={{ filter: 'url(#noiseFilter)', mixBlendMode: 'overlay' }} />
                             </div>
                           )}
 
                           <span style={{ 
-                            fontSize: isComma ? 'min(2vw, 18px)' : 'min(3.4vw, 30px)',
-                            fontFamily: '"Impact", "Arial Narrow", sans-serif',
-                            letterSpacing: '-0.02em',
+                            fontSize: isComma ? 'min(2vw, 16px)' : 'min(3.4vw, 30px)',
+                            fontFamily: 'system-ui, -apple-system, sans-serif',
                             fontWeight: '900',
-                            color: isComma ? (isDecimal ? '#fff' : '#ccc') : (result.renderStyle?.digits || '#f2f2f2'),
+                            color: isComma ? 'transparent' : (result.renderStyle?.ink || '#eeeeee'), // Mürekkep rengi analizi
                             position: 'relative',
                             zIndex: 40,
-                            textShadow: isComma ? 'none' : `1px 0 1px rgba(255,0,0,0.3), -1px 0 1px rgba(0,255,255,0.3), 1px 1px 2px rgba(0,0,0,0.8)`,
-                            opacity: 0.98,
-                            transform: 'scaleY(1.08) scaleX(0.95)'
+                            textShadow: isComma ? 'none' : `1px 1px 1px rgba(0,0,0,0.8)`,
+                            opacity: 0.95,
+                            transform: isComma ? 'none' : 'scaleY(1.1) scaleX(0.9)',
+                            letterSpacing: '-0.05em'
                           }}>
-                            {char}
+                            {char === ',' ? '' : char}
                           </span>
                         </div>
                       );
@@ -311,12 +307,12 @@ export default function Home() {
                   </div>
                 </div>
 
-                {/* Cam Katmanı (Genel Atmosferik Parlama) */}
-                <div className="absolute inset-0 z-50 pointer-events-none bg-gradient-to-br from-white/15 via-transparent to-black/15 opacity-40 mix-blend-soft-light" />
+                {/* Koruyucu Cam Yansıması ve Atmosferik Parlama */}
+                <div className="absolute inset-0 z-50 pointer-events-none bg-gradient-to-tr from-transparent via-white/5 to-transparent opacity-40 mix-blend-overlay" />
                 
-                <div className="absolute bottom-0 left-0 w-full bg-gradient-to-t from-black/98 via-black/60 to-transparent p-4 z-60">
-                   <p className="text-slate-500 text-[10px] uppercase tracking-[0.5em] text-center font-black opacity-40">
-                    MCE V3.3 • PIXEL-PERFECT RECONSTRUCTION ENGINE
+                <div className="absolute bottom-0 left-0 w-full bg-gradient-to-t from-black/95 to-transparent p-4 z-60">
+                   <p className="text-slate-500 text-[9px] uppercase tracking-[0.4em] text-center font-black opacity-50">
+                    MCE V3.4 • FINAL PIXEL-PERFECT RECONSTRUCTION
                   </p>
                 </div>
               </div>
