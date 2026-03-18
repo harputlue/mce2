@@ -57,7 +57,8 @@ export async function POST(request: Request) {
     });
 
   } catch (error: any) {
-    console.error("OCR Error:", error);
-    return NextResponse.json({ error: "Tarama hatası" }, { status: 500 });
+    const errorMsg = error instanceof Error ? error.message : String(error);
+    console.error("MCE v4.0 OCR Error:", errorMsg);
+    return NextResponse.json({ success: false, error: `OCR Hatası: ${errorMsg}` }, { status: 500 });
   }
 }

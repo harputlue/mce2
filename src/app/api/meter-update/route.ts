@@ -136,8 +136,9 @@ export async function POST(request: Request) {
                 v3Engine: 'MCE Anatomical-v4.0'
             } 
         });
-    } catch (error) {
-        console.error("API Error:", error);
-        return NextResponse.json({ success: false, error: "AI İşleme hatası" }, { status: 500 });
+    } catch (error: any) {
+        const errorMsg = error instanceof Error ? error.message : String(error);
+        console.error("MCE v4.0 Update API Error:", errorMsg);
+        return NextResponse.json({ success: false, error: `İşleme Hatası Detail: ${errorMsg}` }, { status: 500 });
     }
 }
