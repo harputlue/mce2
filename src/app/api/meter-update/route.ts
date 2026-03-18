@@ -139,6 +139,12 @@ export async function POST(request: Request) {
     } catch (error: any) {
         const errorMsg = error instanceof Error ? error.message : String(error);
         console.error("MCE v4.0 Update API Error:", errorMsg);
-        return NextResponse.json({ success: false, error: `İşleme Hatası Detail: ${errorMsg}` }, { status: 500 });
+        
+        let customError = `İşleme Hatası Detail: ${errorMsg}`;
+        if (errorMsg.includes("404")) {
+            customError += " | Öneri: Bu anahtar bu modele erişemiyor olabilir. Gemini AI Studio üzerinden hesabınıza hangi modellerin aktif olduğunu kontrol edin.";
+        }
+        
+        return NextResponse.json({ success: false, error: customError }, { status: 500 });
     }
 }
