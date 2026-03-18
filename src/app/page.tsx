@@ -137,7 +137,7 @@ export default function Home() {
         <header className="text-center mb-12 relative">
           <div className="absolute -top-8 left-1/2 -translate-x-1/2">
             <span className="bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 px-4 py-1 rounded-full text-[10px] font-black tracking-[0.3em] uppercase animate-pulse shadow-xl shadow-indigo-500/10">
-              v4.4-FINAL-SYNC ANATOMICAL PRECISION
+              v4.5-PREFIX-SYNC-ACTUAL
             </span>
           </div>
           <h1 className="text-6xl font-black bg-gradient-to-r from-slate-200 via-indigo-300 to-slate-200 bg-clip-text text-transparent mb-2 drop-shadow-sm">
@@ -367,7 +367,7 @@ export default function Home() {
                 
                 <div className="absolute bottom-0 left-0 w-full bg-gradient-to-t from-black/95 via-black/40 to-transparent p-6 z-[900] text-center">
                    <p className="text-slate-500 text-[8px] uppercase tracking-[1.6em] font-black opacity-30">
-                    MCE V4.4-FINAL-SYNC • ANATOMICAL PRECISION ACTIVE
+                    MCE V4.5-PREFIX • ANATOMICAL PRECISION ACTIVE
                    </p>
                 </div>
               </div>
