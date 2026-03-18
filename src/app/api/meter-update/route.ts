@@ -47,35 +47,33 @@ export async function POST(request: Request) {
     const prompt = `
       Bu bir sayaç fotoğrafıdır. Fotoğraftaki rakamların görüntüsünü "piksel düzeyinde" analiz et.
       
-      OBJECTIVE: ANALOG RECONSTRUCTION OF A MECHANICAL GAS METER.
+      OBJECTIVE: ANATOMICAL RECONSTRUCTION OF A MECHANICAL METER.
       
-      STRICT RULES FOR PIXEL ANALYSIS:
-      - This is a real photograph. The digits MUST remain BEHIND the dirty glass surface.
-      - Preserve all scratches, dust, and smudges that were ON TOP of the original digits.
-      - Digits must be part of rotating cylinders (mechanical), not flat text.
-      - Include vertical misalignment (jitter) between adjacent digits.
-      - Match original degradation: faded white (not bright), low contrast, blurred edges.
-      - Heritage matching: Re-use surrounding pixel texture and compression artifacts.
+      CRITICAL PRECISION RULES:
+      1. TRANSITION POINT: Analyze exactly where the black drums end and red drums begin. Provide the 'redDrumStart' as a percentage of the total width.
+      2. COLOR SAMPLING: Do not use generic colors. Sample the EXACT weathered black and faded red from the photo's surrounding pixels.
+      3. WINDOW MAPPING: The coordinates must wrap the ENTIRE 8-digit window including the internal frame edges.
+      4. PERSPECTIVE: Analyze if the window is tilted or skewed; provide sub-pixel accuracy.
       
-      ANALYSIS DATA:
-      - Coordinate matching for the 5+3 window ($[54268171] meter model).
-      - Analyze "Surface Decay": Frequency of scratches/dust over the digits.
-      - Analyze "Light Wrap": How the environment light bleeds over the edges.
+      STRICT REPRODUCTION:
+      - Digits must be BURIED under the surface scratches/dust (Surface Decay).
+      - Maintain mechanical Drum Curvature and Jitter.
+      - RE-USE the original grain and artifacts at 100% fidelity.
       
       RESPONSE JSON FORMAT:
       {
         "coordinates": { "top": number, "left": number, "width": number, "height": number },
         "style": { 
-          "weatheredBlackHex": string,
-          "fadedRedHex": string,
-          "digitInkColor": string,
-          "blurLevel": number (matched lens softness),
+          "sampledBlackHex": string,
+          "sampledRedHex": string,
+          "sampledInkColor": string,
+          "redDrumStartPercent": number (percentage where red starts, e.g. 62.5),
+          "blurLevel": number,
           "perspectiveSkew": number,
-          "isoNoise": number,
           "mechanicalJitter": number,
-          "surfaceDecayOpacity": number (0.0 to 1.0)
+          "surfaceDecayOpacity": number
         },
-        "v3Engine": "MCE True-Analog V3.9"
+        "v3Engine": "MCE Anatomical-v4.0"
       }
     `;
 
@@ -97,16 +95,17 @@ export async function POST(request: Request) {
         
         const aiData = JSON.parse(jsonMatch[0]);
         
-        // v3.9 Synced Mapping (True-Analog Pro Engine)
+        // v4.0 Synced Mapping (Anatomical Precision Engine)
         const renderStyle = {
-            black: aiData.style?.weatheredBlackHex || '#131314',
-            red: aiData.style?.fadedRedHex || '#911212',
-            ink: aiData.style?.digitInkColor || '#dadada',
+            black: aiData.style?.sampledBlackHex || '#111112',
+            red: aiData.style?.sampledRedHex || '#8b1212',
+            ink: aiData.style?.sampledInkColor || '#d1d1d1',
             blur: aiData.style?.blurLevel || 0.65,
             skew: aiData.style?.perspectiveSkew || 0,
-            noise: aiData.style?.isoNoise || 0.25,
+            noise: 0.25, // default grain
             jitter: aiData.style?.mechanicalJitter || 0.12,
-            decay: aiData.style?.surfaceDecayOpacity || 0.35
+            decay: aiData.style?.surfaceDecayOpacity || 0.35,
+            redStart: aiData.style?.redDrumStartPercent || 62.5 // 5/8 default
         };
 
         return NextResponse.json({ 
@@ -115,11 +114,11 @@ export async function POST(request: Request) {
                 originalReading: parseFloat(currentReading),
                 added: parseFloat(addedValue),
                 finalReading: parseFloat(finalValue),
-                aiMessage: aiData.v3Engine || "True-Analog reconstruction complete.",
+                aiMessage: aiData.v3Engine || "Anatomical precision analysis complete.",
                 coordinates: aiData.coordinates,
                 design: { integers: 5, decimals: 3, spacing: 0 },
                 renderStyle,
-                v3Engine: 'MCE True-Analog V3.9'
+                v3Engine: 'MCE Anatomical-v4.0'
             } 
         });
     } catch (error) {

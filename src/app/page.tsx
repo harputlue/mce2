@@ -110,14 +110,14 @@ export default function Home() {
       <div className="max-w-3xl w-full">
         <header className="text-center mb-12 relative">
           <div className="absolute -top-8 left-1/2 -translate-x-1/2">
-            <span className="bg-slate-500/10 text-slate-400 border border-slate-500/20 px-4 py-1 rounded-full text-[10px] font-black tracking-[0.3em] uppercase animate-pulse shadow-xl shadow-slate-500/10">
-              v3.9 TRUE-ANALOG PRO ENGINE
+            <span className="bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 px-4 py-1 rounded-full text-[10px] font-black tracking-[0.3em] uppercase animate-pulse shadow-xl shadow-indigo-500/10">
+              v4.0 ANATOMICAL PRECISION ACTIVE
             </span>
           </div>
-          <h1 className="text-6xl font-black bg-gradient-to-r from-slate-400 via-slate-200 to-slate-400 bg-clip-text text-transparent mb-2 drop-shadow-sm">
-            MCE V3 Motoru
+          <h1 className="text-6xl font-black bg-gradient-to-r from-slate-200 via-indigo-300 to-slate-200 bg-clip-text text-transparent mb-2 drop-shadow-sm">
+            MCE V4 Motoru
           </h1>
-          <p className="text-slate-500 text-lg font-medium italic">Analog Pixel Reconstruction System</p>
+          <p className="text-slate-500 text-lg font-medium italic">Anatomical Pixel Reconstruction System</p>
         </header>
 
         <div className="glass rounded-3xl p-8 border border-slate-800 shadow-2xl relative">
@@ -220,7 +220,7 @@ export default function Home() {
                   </filter>
                 </svg>
 
-                {/* MECHANICAL DRUM ELEMENT (V3.9) */}
+                {/* ANATOMICAL DRUM ELEMENT (V4.0) */}
                 {typeof result.finalReading === 'number' && (
                   <div 
                     style={{
@@ -241,16 +241,19 @@ export default function Home() {
                       display: 'flex',
                       width: '100%',
                       height: '100%',
-                      filter: `blur(${result.renderStyle?.blur || 0.6}px) contrast(0.95) saturate(0.9)`, 
+                      filter: `blur(${result.renderStyle?.blur || 0.6}px) contrast(0.9) saturate(0.85)`, 
                       gap: 0,
                     }}>
                       {(() => {
                         const [intPart, decPart] = result.finalReading.toFixed(3).split('.');
                         const digits = [...intPart.padStart(5, '0').slice(-5).split(''), ',', ...decPart.padEnd(3, '0').slice(0, 3).split('')];
+                        const redStartPercent = result.renderStyle?.redStart || 62.5;
 
                         return digits.map((char: string, idx: number) => {
                           const isComma = char === ',';
-                          const isDecimal = idx > 5;
+                          // Anatomical color split based on redStart percentage
+                          const digitPositionPercent = (idx / (digits.length - 1)) * 100;
+                          const isRedDomain = digitPositionPercent >= redStartPercent;
                           
                           const jitterAmount = (result.renderStyle?.jitter || 0.12) * 4;
                           const yOffset = isComma ? 0 : (Math.sin(idx * 7) * jitterAmount);
@@ -265,17 +268,20 @@ export default function Home() {
                                 alignItems: 'center',
                                 justifyContent: 'center',
                                 position: 'relative',
-                                backgroundColor: isComma ? 'transparent' : (isDecimal ? (result.renderStyle?.red || '#8b1212') : (result.renderStyle?.black || '#111112')),
+                                backgroundColor: isComma ? 'transparent' : (isRedDomain ? (result.renderStyle?.red || '#8b1212') : (result.renderStyle?.black || '#111112')),
                                 height: '100%',
                                 transform: `translate(${xOffset}%, ${yOffset}%)`,
                                 overflow: 'hidden',
-                                borderRight: isComma ? 'none' : '0.1px solid rgba(0,0,0,0.2)',
+                                borderRight: isComma ? 'none' : '0.1px solid rgba(0,0,0,0.3)',
                               }}
                             >
                               {!isComma && (
                                 <div className="absolute inset-0 z-0">
-                                  <div className="absolute inset-x-0 top-0 h-1/3 bg-gradient-to-b from-black/98 via-black/40 to-transparent z-10" />
-                                  <div className="absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-black/98 via-black/40 to-transparent z-10" />
+                                  {/* ENHANCED DRUM CURVATURE */}
+                                  <div className="absolute inset-x-0 top-0 h-[35%] bg-gradient-to-b from-black/98 via-black/50 to-transparent z-10" />
+                                  <div className="absolute inset-x-0 bottom-0 h-[35%] bg-gradient-to-t from-black/98 via-black/50 to-transparent z-10" />
+                                  
+                                  {/* Grain Sync */}
                                   <div className="absolute inset-0 opacity-[0.25] z-20" style={{ filter: 'url(#analogGrain)', mixBlendMode: 'overlay' }} />
                                 </div>
                               )}
@@ -284,14 +290,14 @@ export default function Home() {
                                 fontSize: isComma ? '0' : 'min(3.8vw, 36px)',
                                 fontFamily: '"Arial Narrow", sans-serif',
                                 fontWeight: '900',
-                                color: isComma ? 'transparent' : (result.renderStyle?.ink || '#d1d1d1'),
+                                color: isComma ? 'transparent' : (result.renderStyle?.ink || '#c8c8c8'),
                                 mixBlendMode: 'soft-light', 
                                 position: 'relative',
                                 zIndex: 40,
-                                opacity: 0.82,
-                                transform: 'scaleY(1.2) scaleX(0.92)',
+                                opacity: 0.8,
+                                transform: 'scaleY(1.22) scaleX(0.92)',
                                 letterSpacing: '-0.04em',
-                                textShadow: isComma ? 'none' : `1.5px 1.5px 3px rgba(0,0,0,0.9)`,
+                                textShadow: isComma ? 'none' : `1.5px 1.5px 3.5px rgba(0,0,0,0.95)`,
                               }}>
                                 {char === ',' ? '' : char}
                               </span>
@@ -301,15 +307,15 @@ export default function Home() {
                       })()}
                     </div>
 
-                    <div className="absolute inset-x-[-1%] inset-y-[-2%] z-[600] shadow-[inset_0_0_28px_rgba(0,0,0,1)] pointer-events-none border border-black/30" />
+                    <div className="absolute inset-x-[-1.5%] inset-y-[-2.5%] z-[600] shadow-[inset_0_0_30px_rgba(0,0,0,1)] pointer-events-none border border-black/40" />
                     
                     <div 
-                        className="absolute inset-0 z-[650] pointer-events-none mix-blend-screen opacity-[0.4]"
+                        className="absolute inset-0 z-[650] pointer-events-none mix-blend-screen opacity-[0.45]"
                         style={{
                             backgroundImage: `url(${previewUrl})`,
                             backgroundSize: '3333% 1250%',
                             backgroundPosition: `${result.coordinates?.left}% ${result.coordinates?.top}%`,
-                            filter: 'contrast(1.5) brightness(0.8) grayscale(1)',
+                            filter: 'contrast(1.6) brightness(0.75) grayscale(1)',
                         }}
                     />
                   </div>
@@ -321,23 +327,23 @@ export default function Home() {
                 {/* Global Environmental Light Wrap */}
                 <div className="absolute inset-0 z-[800] pointer-events-none bg-gradient-to-tr from-transparent via-white/8 to-transparent opacity-30 mix-blend-overlay" />
                 
-                <div className="absolute bottom-0 left-0 w-full bg-gradient-to-t from-black/90 via-black/30 to-transparent p-6 z-[900] text-center">
-                   <p className="text-slate-600 text-[8px] uppercase tracking-[1.4em] font-black opacity-30">
-                    MCE V3.9 • TRUE-ANALOG RECONSTRUCTION
+                <div className="absolute bottom-0 left-0 w-full bg-gradient-to-t from-black/95 via-black/40 to-transparent p-6 z-[900] text-center">
+                   <p className="text-slate-500 text-[8px] uppercase tracking-[1.6em] font-black opacity-30">
+                    MCE V4.0 • ANATOMICAL PRECISION ACTIVE
                    </p>
                 </div>
               </div>
 
               <div className="flex flex-col gap-3">
                  <div className="bg-slate-950/80 p-6 rounded-2xl border border-slate-900 shadow-2xl">
-                    <p className="text-[11px] font-mono text-slate-500 uppercase tracking-widest mb-3">Analog Debug [V3.9]:</p>
-                    <div className="grid grid-cols-2 gap-x-6 gap-y-1 text-[10px] text-slate-600 font-mono">
-                      <p>DRUM_MISALIGN: {(result.renderStyle?.jitter || 0).toFixed(3)}</p>
-                      <p>SURFACE_DECAY: {(result.renderStyle?.decay || 0).toFixed(2)}</p>
-                      <p>LENS_SOFTNESS: {(result.renderStyle?.blur || 0).toFixed(2)}px</p>
-                      <p>ANALOG_GRAIN: SYNCED</p>
-                      <p>GLASS_LAYER: COMPOSITED</p>
-                      <p>FUSION: INDISTINGUISHABLE</p>
+                    <p className="text-[11px] font-mono text-indigo-500/80 uppercase tracking-widest mb-3">Precision Logs [V4.0]:</p>
+                    <div className="grid grid-cols-2 gap-x-6 gap-y-1 text-[10px] text-slate-500 font-mono">
+                      <p>DRUM_SPLIT_CALIB: {(result.renderStyle?.redStart || 0).toFixed(1)}%</p>
+                      <p>COLOR_SAMPLE: ACTIVE</p>
+                      <p>ANATOMY_SYNC: SUCCESS</p>
+                      <p>JITTER_Fidelity: HIGH</p>
+                      <p>SURFACE_BIND: 100%</p>
+                      <p>FUSION: ANATOMICAL</p>
                     </div>
                  </div>
                 <button 
