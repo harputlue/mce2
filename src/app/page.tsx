@@ -2,6 +2,31 @@
 
 import React, { useState, useRef } from 'react';
 
+interface MeterUpdateResult {
+  originalReading?: number | string;
+  finalReading: number;
+  coordinates?: {
+    top: number;
+    left: number;
+    width: number;
+    height: number;
+  };
+  renderStyle?: {
+    noise?: number;
+    blur?: number;
+    skew?: number;
+    tilt?: number;
+    jitter?: number;
+    redStart?: number;
+    red?: string;
+    black?: string;
+    ink?: string;
+    reflection?: number;
+    bloom?: number;
+    decay?: number;
+  };
+}
+
 export default function Home() {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
@@ -9,7 +34,7 @@ export default function Home() {
   const [addedValue, setAddedValue] = useState<string>('');
   const [isProcessing, setIsProcessing] = useState<boolean>(false);
   const [isScanning, setIsScanning] = useState<boolean>(false);
-  const [result, setResult] = useState<any>(null);
+  const [result, setResult] = useState<MeterUpdateResult | null>(null);
   
   const fileInputRef = useRef<HTMLInputElement>(null);
   const downloadRef = useRef<HTMLDivElement>(null);
@@ -67,7 +92,7 @@ export default function Home() {
         body: formData,
       });
 
-      const resData = await response.json();
+      const resData = await response.json() as { success: boolean, data: MeterUpdateResult, error?: string };
       if (response.ok) {
         setResult(resData.data);
       } else {
@@ -99,9 +124,10 @@ export default function Home() {
       link.href = dataUrl;
       link.click();
       console.log("MCE V3: Image saved as PNG");
-    } catch (err: any) {
+    } catch (err: unknown) {
+      const errorMessage = err instanceof Error ? err.message : String(err);
       console.error("Capture error:", err);
-      alert(`İndirme Hatası (v2.1): ${err.message}. \n\nEğer 'lab' hatası alıyorsanız lütfen tarayıcı sekmesini kapatıp tekrar açın veya CMD+Shift+R ile sert yenileme yapın.`);
+      alert(`İndirme Hatası (v2.1): ${errorMessage}. \n\nEğer 'lab' hatası alıyorsanız lütfen tarayıcı sekmesini kapatıp tekrar açın veya CMD+Shift+R ile sert yenileme yapın.`);
     }
   };
 
@@ -222,103 +248,115 @@ export default function Home() {
 
                 {/* ANATOMICAL DRUM ELEMENT (V4.0) */}
                 {typeof result.finalReading === 'number' && (
-                  <div 
-                    style={{
-                      position: 'absolute',
-                      top: `${result.coordinates?.top || 50}%`,
-                      left: `${result.coordinates?.left || 50}%`,
-                      width: `${result.coordinates?.width || 30}%`,
-                      height: `${result.coordinates?.height || 8}%`,
-                      transform: `translate(-50%, -50%) skew(${result.renderStyle?.skew || 0}deg)`,
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      pointerEvents: 'none',
-                      zIndex: 200,
-                    }}
-                  >
-                    <div style={{
-                      display: 'flex',
-                      width: '100%',
-                      height: '100%',
-                      filter: `blur(${result.renderStyle?.blur || 0.6}px) contrast(0.9) saturate(0.85)`, 
-                      gap: 0,
-                    }}>
-                      {(() => {
-                        const [intPart, decPart] = result.finalReading.toFixed(3).split('.');
-                        const digits = [...intPart.padStart(5, '0').slice(-5).split(''), ',', ...decPart.padEnd(3, '0').slice(0, 3).split('')];
-                        const redStartPercent = result.renderStyle?.redStart || 62.5;
-
-                        return digits.map((char: string, idx: number) => {
-                          const isComma = char === ',';
-                          // Anatomical color split based on redStart percentage
-                          const digitPositionPercent = (idx / (digits.length - 1)) * 100;
-                          const isRedDomain = digitPositionPercent >= redStartPercent;
-                          
-                          const jitterAmount = (result.renderStyle?.jitter || 0.12) * 4;
-                          const yOffset = isComma ? 0 : (Math.sin(idx * 7) * jitterAmount);
-                          const xOffset = isComma ? 0 : (Math.cos(idx * 3) * (jitterAmount / 2));
-
-                          return (
-                            <div 
-                              key={idx}
-                              style={{
-                                flex: isComma ? '0.01' : '1', 
-                                display: 'flex',
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                                position: 'relative',
-                                backgroundColor: isComma ? 'transparent' : (isRedDomain ? (result.renderStyle?.red || '#8b1212') : (result.renderStyle?.black || '#111112')),
-                                height: '100%',
-                                transform: `translate(${xOffset}%, ${yOffset}%)`,
-                                overflow: 'hidden',
-                                borderRight: isComma ? 'none' : '0.1px solid rgba(0,0,0,0.3)',
-                              }}
-                            >
-                              {!isComma && (
-                                <div className="absolute inset-0 z-0">
-                                  {/* ENHANCED DRUM CURVATURE */}
-                                  <div className="absolute inset-x-0 top-0 h-[35%] bg-gradient-to-b from-black/98 via-black/50 to-transparent z-10" />
-                                  <div className="absolute inset-x-0 bottom-0 h-[35%] bg-gradient-to-t from-black/98 via-black/50 to-transparent z-10" />
-                                  
-                                  {/* Grain Sync */}
-                                  <div className="absolute inset-0 opacity-[0.25] z-20" style={{ filter: 'url(#analogGrain)', mixBlendMode: 'overlay' }} />
-                                </div>
-                              )}
-
-                              <span style={{ 
-                                fontSize: isComma ? '0' : 'min(3.8vw, 36px)',
-                                fontFamily: '"Arial Narrow", sans-serif',
-                                fontWeight: '900',
-                                color: isComma ? 'transparent' : (result.renderStyle?.ink || '#c8c8c8'),
-                                mixBlendMode: 'soft-light', 
-                                position: 'relative',
-                                zIndex: 40,
-                                opacity: 0.8,
-                                transform: 'scaleY(1.22) scaleX(0.92)',
-                                letterSpacing: '-0.04em',
-                                textShadow: isComma ? 'none' : `1.5px 1.5px 3.5px rgba(0,0,0,0.95)`,
-                              }}>
-                                {char === ',' ? '' : char}
-                              </span>
-                            </div>
-                          );
-                        });
-                      })()}
-                    </div>
-
-                    <div className="absolute inset-x-[-1.5%] inset-y-[-2.5%] z-[600] shadow-[inset_0_0_30px_rgba(0,0,0,1)] pointer-events-none border border-black/40" />
-                    
                     <div 
-                        className="absolute inset-0 z-[650] pointer-events-none mix-blend-screen opacity-[0.45]"
-                        style={{
-                            backgroundImage: `url(${previewUrl})`,
-                            backgroundSize: '3333% 1250%',
-                            backgroundPosition: `${result.coordinates?.left}% ${result.coordinates?.top}%`,
-                            filter: 'contrast(1.6) brightness(0.75) grayscale(1)',
-                        }}
-                    />
-                  </div>
+                      style={{
+                        position: 'absolute',
+                        top: `${result.coordinates?.top || 50}%`,
+                        left: `${result.coordinates?.left || 50}%`,
+                        width: `${result.coordinates?.width || 38}%`,
+                        height: `${result.coordinates?.height || 8}%`,
+                        transform: `translate(-50%, -50%) skew(${result.renderStyle?.skew || 0}deg) rotateX(${result.renderStyle?.tilt || 0}deg)`,
+                        perspective: '1000px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        pointerEvents: 'none',
+                        zIndex: 200,
+                      }}
+                    >
+                      <div style={{
+                        display: 'flex',
+                        width: '100%',
+                        height: '100%',
+                        gap: 0,
+                        filter: `blur(${result.renderStyle?.blur || 0.6}px) contrast(1.1) brightness(0.95)`,
+                      }}>
+                        {(() => {
+                          const [intPart, decPart] = result.finalReading.toFixed(3).split('.');
+                          const digits = [...intPart.padStart(5, '0').slice(-5).split(''), ',', ...decPart.padEnd(3, '0').slice(0, 3).split('')];
+                          const redStartPercent = result.renderStyle?.redStart || 62.5;
+
+                          return digits.map((char: string, idx: number) => {
+                            const isComma = char === ',';
+                            const digitPositionPercent = (idx / (digits.length - 1)) * 100;
+                            const isRedDomain = digitPositionPercent >= redStartPercent;
+                            
+                            const jitter = (result.renderStyle?.jitter || 0.1) * 3;
+                            const yOffset = isComma ? 0 : (Math.sin(idx * 5) * jitter);
+                            
+                            return (
+                              <div 
+                                key={idx}
+                                style={{
+                                  flex: isComma ? '0.05' : '1',
+                                  height: '100%',
+                                  backgroundColor: isComma ? 'transparent' : (isRedDomain ? (result.renderStyle?.red || '#911212') : (result.renderStyle?.black || '#131314')),
+                                  position: 'relative',
+                                  overflow: 'hidden',
+                                  transform: `translateY(${yOffset}%)`,
+                                  boxShadow: isComma ? 'none' : 'inset 0 0 10px rgba(0,0,0,0.8)',
+                                  borderRight: isComma ? 'none' : '0.2px solid rgba(0,0,0,0.4)',
+                                }}
+                              >
+                                {!isComma && (
+                                  <>
+                                    {/* DRUM CURVATURE & LIGHTING */}
+                                    <div className="absolute inset-0 z-10 bg-gradient-to-b from-black/95 via-transparent to-black/95 opacity-80" />
+                                    <div className="absolute inset-0 z-20 bg-gradient-to-b from-white/5 via-transparent to-white/5 opacity-30" />
+                                    
+                                    {/* TEXTURE BLEND (Surface Decay) */}
+                                    <div 
+                                      className="absolute inset-0 z-30 opacity-[0.4]"
+                                      style={{
+                                        backgroundImage: `url(${previewUrl})`,
+                                        backgroundSize: '1200% 800%',
+                                        backgroundPosition: `${result.coordinates?.left}% ${result.coordinates?.top}%`,
+                                        mixBlendMode: 'overlay',
+                                        filter: 'grayscale(1) contrast(1.5)',
+                                      }}
+                                    />
+                                  </>
+                                )}
+
+                                <span style={{ 
+                                  fontSize: isComma ? '12px' : 'min(4.2vw, 42px)',
+                                  fontFamily: '"Arial Narrow", sans-serif',
+                                  fontWeight: '900',
+                                  color: isComma ? 'transparent' : (result.renderStyle?.ink || '#dadada'),
+                                  position: 'relative',
+                                  zIndex: 40,
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  justifyContent: 'center',
+                                  height: '100%',
+                                  transform: 'scaleY(1.15) scaleX(0.95)',
+                                  letterSpacing: '-0.02em',
+                                  textShadow: '0 2px 4px rgba(0,0,0,0.9)',
+                                  opacity: 0.85,
+                                  mixBlendMode: 'plus-lighter',
+                                }}>
+                                  {char === ',' ? '' : char}
+                                </span>
+                              </div>
+                            );
+                          });
+                        })()}
+                      </div>
+
+                      {/* EXTERNAL ATMOSPHERIC OVERLAY */}
+                      <div className="absolute inset-x-[-2%] inset-y-[-4%] z-[600] shadow-[inset_0_0_25px_rgba(0,0,0,0.9)] pointer-events-none border border-black/50" />
+                      
+                      {/* LIGHT WRAP (The key to photorealism) */}
+                      <div 
+                          className="absolute inset-0 z-[650] pointer-events-none mix-blend-color-dodge opacity-[0.55]"
+                          style={{
+                              backgroundImage: `url(${previewUrl})`,
+                              backgroundSize: '3000% 1000%',
+                              backgroundPosition: `${result.coordinates?.left}% ${result.coordinates?.top}%`,
+                              filter: 'contrast(1.5) brightness(0.8) grayscale(1)',
+                          }}
+                      />
+                    </div>
                 )}
 
                 {/* Atmospheric Lens Dust Layer */}

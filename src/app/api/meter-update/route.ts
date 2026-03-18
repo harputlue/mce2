@@ -45,35 +45,41 @@ export async function POST(request: Request) {
     const base64Image = Buffer.from(imageData).toString('base64');
 
     const prompt = `
-      Bu bir sayaç fotoğrafıdır. Fotoğraftaki rakamların görüntüsünü "piksel düzeyinde" analiz et.
+      OBJECTIVE: ANATOMICAL PIXEL RECONSTRUCTION (v4.0 ACTIVE)
       
-      OBJECTIVE: ANATOMICAL RECONSTRUCTION OF A MECHANICAL METER.
+      TASK: Perform a deep visual audit of the uploaded meter photo for 'true-analog' reconstruction.
       
-      CRITICAL PRECISION RULES:
-      1. TRANSITION POINT: Analyze exactly where the black drums end and red drums begin. Provide the 'redDrumStart' as a percentage of the total width.
-      2. COLOR SAMPLING: Do not use generic colors. Sample the EXACT weathered black and faded red from the photo's surrounding pixels.
-      3. WINDOW MAPPING: The coordinates must wrap the ENTIRE 8-digit window including the internal frame edges.
-      4. PERSPECTIVE: Analyze if the window is tilted or skewed; provide sub-pixel accuracy.
+      DETECTION (SUB-PIXEL):
+      1. WINDOW_LOC: Precisely map the coordinates of the 8-digit mechanical window including internal frame depth.
+      2. PERSPECTIVE_WARP: Detect the exact 3D tilt, rotation, and lens distortion (barrel/pincushion).
       
-      STRICT REPRODUCTION:
-      - Digits must be BURIED under the surface scratches/dust (Surface Decay).
-      - Maintain mechanical Drum Curvature and Jitter.
-      - RE-USE the original grain and artifacts at 100% fidelity.
+      PHYSICAL SYNC:
+      3. DRUM_ANATOMY: Identify exact pivot points where digits rotate. Identify any 'half-rolled' digits.
+      4. COLOR_GRAFTING: Sample the 'black' ink (usually weathered anthracite) and 'red' ink (faded oxide) from the existing pixel clusters.
+      5. LIGHTING_WRAP: Map the primary light source direction and glare intensity on the glass lens.
       
-      RESPONSE JSON FORMAT:
+      SURFACE DECAY MAPPING:
+      6. LENS_DIRT: Detect dust motes, scratches, and grease spots on the glass surface. These must stay ABOVE the new digits.
+      7. ISO_GRAIN: Identify the sensor noise pattern (ISO/Grain) to match at the pixel level.
+      
+      RESPONSE JSON (MANDATORY):
       {
         "coordinates": { "top": number, "left": number, "width": number, "height": number },
         "style": { 
-          "sampledBlackHex": string,
-          "sampledRedHex": string,
-          "sampledInkColor": string,
-          "redDrumStartPercent": number (percentage where red starts, e.g. 62.5),
-          "blurLevel": number,
-          "perspectiveSkew": number,
-          "mechanicalJitter": number,
-          "surfaceDecayOpacity": number
+          "black": string (hex),
+          "red": string (hex),
+          "ink": string (hex),
+          "redStart": number (0-100),
+          "skew": number (deg),
+          "tilt": number (deg),
+          "jitter": number,
+          "blur": number,
+          "noise": number,
+          "reflection": number,
+          "bloom": number,
+          "decay": number
         },
-        "v3Engine": "MCE Anatomical-v4.0"
+        "v4Engine": "MCE-Anatomical-v4.0-TrueAnalog"
       }
     `;
 
@@ -95,17 +101,20 @@ export async function POST(request: Request) {
         
         const aiData = JSON.parse(jsonMatch[0]);
         
-        // v4.0 Synced Mapping (Anatomical Precision Engine)
+        // v4.0 Anatomical Precision Engine (True-Analog Pro)
         const renderStyle = {
-            black: aiData.style?.sampledBlackHex || '#111112',
-            red: aiData.style?.sampledRedHex || '#8b1212',
-            ink: aiData.style?.sampledInkColor || '#d1d1d1',
-            blur: aiData.style?.blurLevel || 0.65,
-            skew: aiData.style?.perspectiveSkew || 0,
-            noise: 0.25, // default grain
-            jitter: aiData.style?.mechanicalJitter || 0.12,
-            decay: aiData.style?.surfaceDecayOpacity || 0.35,
-            redStart: aiData.style?.redDrumStartPercent || 62.5 // 5/8 default
+            black: aiData.style?.black || '#111112',
+            red: aiData.style?.red || '#8b1212',
+            ink: aiData.style?.ink || '#d1d1d1',
+            blur: aiData.style?.blur || 0.65,
+            skew: aiData.style?.skew || 0,
+            tilt: aiData.style?.tilt || 0,
+            noise: aiData.style?.noise || 0.25,
+            jitter: aiData.style?.jitter || 0.12,
+            decay: aiData.style?.decay || 0.35,
+            redStart: aiData.style?.redStart || 62.5,
+            reflection: aiData.style?.reflection || 0.3,
+            bloom: aiData.style?.bloom || 0.1
         };
 
         return NextResponse.json({ 
@@ -114,7 +123,7 @@ export async function POST(request: Request) {
                 originalReading: parseFloat(currentReading),
                 added: parseFloat(addedValue),
                 finalReading: parseFloat(finalValue),
-                aiMessage: aiData.v3Engine || "Anatomical precision analysis complete.",
+                aiMessage: aiData.v4Engine || "MCE v4.0 True-Analog Analysis Complete.",
                 coordinates: aiData.coordinates,
                 design: { integers: 5, decimals: 3, spacing: 0 },
                 renderStyle,
