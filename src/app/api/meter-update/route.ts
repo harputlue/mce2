@@ -40,7 +40,10 @@ export async function POST(request: Request) {
         });
     }
 
-    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash-latest" });
+    const model = genAI.getGenerativeModel(
+        { model: "gemini-1.5-flash" }, 
+        { apiVersion: "v1" }
+    );
     const imageData = await file.arrayBuffer();
     const base64Image = Buffer.from(imageData).toString('base64');
 
