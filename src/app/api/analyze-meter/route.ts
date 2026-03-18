@@ -39,8 +39,17 @@ export async function POST(request: Request) {
 
     const response = await result.response;
     const text = response.text();
-    const jsonMatch = text.match(/\{[\s\S]*\}/);
-    const aiData = jsonMatch ? JSON.parse(jsonMatch[0]) : { detectedValue: "" };
+    
+    // Robust JSON extraction (removes markdown code blocks if any)
+    const jsonStr = text.replace(/```json/g, "").replace(/```/g, "").trim();
+    const jsonMatch = jsonStr.match(/\{[\s\S]*\}/);
+    
+    if (!jsonMatch) {
+      console.error("OCR API Hata: AI Yanıtı JSON formatında değil ->", text);
+      throw new Error("AI format hatası");
+    }
+    
+    const aiData = JSON.parse(jsonMatch[0]);
 
     return NextResponse.json({ 
       success: true, 

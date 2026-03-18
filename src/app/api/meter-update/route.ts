@@ -93,11 +93,17 @@ export async function POST(request: Request) {
       }
     ]);
 
-    const response = await result.response;
+        const response = await result.response;
         const resultText = response.text();
-        const jsonMatch = resultText.match(/\{[\s\S]*\}/);
         
-        if (!jsonMatch) throw new Error("AI Analiz formatı hatalı.");
+        // MCE v4.0 Robust Extraction (strips markdown code blocks)
+        const jsonStr = resultText.replace(/```json/g, "").replace(/```/g, "").trim();
+        const jsonMatch = jsonStr.match(/\{[\s\S]*\}/);
+        
+        if (!jsonMatch) {
+            console.error("MCE v4.0 API Hata: AI Yanıtı geçersiz ->", resultText);
+            throw new Error("AI Analiz formatı hatalı.");
+        }
         
         const aiData = JSON.parse(jsonMatch[0]);
         
