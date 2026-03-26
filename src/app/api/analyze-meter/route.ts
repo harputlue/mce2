@@ -16,7 +16,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'API Key eksik' }, { status: 500 });
     }
 
-    const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" }, { apiVersion: "v1" });
+    const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash-lite" }, { apiVersion: "v1" });
     const imageData = await file.arrayBuffer();
     const base64Image = Buffer.from(imageData).toString('base64');
 
@@ -59,6 +59,11 @@ export async function POST(request: Request) {
   } catch (error: any) {
     const errorMsg = error instanceof Error ? error.message : String(error);
     console.error("MCE v4.0 OCR Error:", errorMsg);
+    
+    if (errorMsg.includes("429")) {
+      return NextResponse.json({ success: false, error: "Günlük ücretsiz kullanım kotası dolmuştur. Lütfen yarın tekrar deneyiniz." }, { status: 429 });
+    }
+    
     return NextResponse.json({ success: false, error: `OCR Hatası: ${errorMsg}` }, { status: 500 });
   }
 }

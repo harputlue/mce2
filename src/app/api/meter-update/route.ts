@@ -40,7 +40,7 @@ export async function POST(request: Request) {
         });
     }
 
-    const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" }, { apiVersion: "v1" });
+    const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash-lite" }, { apiVersion: "v1" });
     const imageData = await file.arrayBuffer();
     const base64Image = Buffer.from(imageData).toString('base64');
 
@@ -140,6 +140,10 @@ export async function POST(request: Request) {
         const errorMsg = error instanceof Error ? error.message : String(error);
         console.error("MCE v4.0 Update API Error:", errorMsg);
         
+        if (errorMsg.includes("429")) {
+            return NextResponse.json({ success: false, error: "Bugünlük ücretsiz kullanım kotanız dolmuştur. Lütfen yarın tekrar deneyiniz." }, { status: 429 });
+        }
+
         let customError = `İşleme Hatası Detail: ${errorMsg}`;
         if (errorMsg.includes("404")) {
             customError += " | Öneri: Bu anahtar bu modele erişemiyor olabilir. Gemini AI Studio üzerinden hesabınıza hangi modellerin aktif olduğunu kontrol edin.";
