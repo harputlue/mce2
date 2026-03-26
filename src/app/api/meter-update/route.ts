@@ -49,27 +49,34 @@ export async function POST(request: Request) {
 
     const targetValue = finalValue;
     const prompt = `
-      
-      RESPONSE JSON (MANDATORY):
-      {
-        "coordinates": { "top": number, "left": number, "width": number, "height": number },
-        "style": { 
-          "black": string (hex),
-          "red": string (hex),
-          "ink": string (hex),
-          "redStart": number (0-100),
-          "skew": number (deg),
-          "tilt": number (deg),
-          "jitter": number,
-          "blur": number,
-          "noise": number,
-          "reflection": number,
-          "bloom": number,
-          "decay": number
-        },
-        "v4Engine": "MCE-Anatomical-v4.0-TrueAnalog"
-      }
-    `;
+[SYSTEM: MCE ANATOMICAL PRECISION v4.0 ACTIVE]
+TASK: LOCATE & ANALYZE COUNTER WINDOW FOR SUB-PIXEL FUSION.
+
+INPUT IMAGE: Mechanical meter counter.
+
+INSTRUCTIONS:
+1. MAP_COORDS: Return the exact bounding box of the 8-digit mechanical counter window.
+   - top, left, width, height must be in percentage (0 to 100).
+2. STYLE_SAMPLING: Detect the exact visual language:
+   - black: Background color hex of the main drum.
+   - red: Background color hex of the decimal drums.
+   - ink: Text color hex of the digits.
+   - redStart: Percentage (0-100) where the red drums start (usually 62.5% for 3 decimals).
+   - skew, tilt: Any distortion angle of the numbers or window.
+   - jitter, blur, noise: Pixel-level artifacts to match.
+3. OUTPUT: MUST be a strict JSON.
+
+EXPECTED JSON:
+{
+  "coordinates": { "top": number, "left": number, "width": number, "height": number },
+  "style": { 
+    "black": string, "red": string, "ink": string, "redStart": number, 
+    "skew": number, "tilt": number, "jitter": number, "blur": number, 
+    "noise": number, "reflection": number, "bloom": number, "decay": number
+  },
+  "v4Engine": "MCE-Anatomical-v4.0-Active"
+}
+`;
 
     const result = await model.generateContent([
       prompt,
@@ -117,11 +124,11 @@ export async function POST(request: Request) {
                 originalReading: parseFloat(currentReading),
                 added: parseFloat(addedValue),
                 finalReading: parseFloat(finalValue),
-                aiMessage: aiData.v4Engine || "MCE v4.0 True-Analog Analysis Complete.",
+                aiMessage: aiData.v13Engine || "MCE v13.0 True-Analog Analysis Complete.",
                 coordinates: aiData.coordinates,
-                design: { integers: 5, decimals: 3, spacing: 0 },
+                design: aiData.design || { integers: 5, decimals: 3, spacing: 0 },
                 renderStyle,
-                v3Engine: 'MCE Anatomical-v4.0'
+                v3Engine: 'v13.0-ANATOMICAL-FUSION'
             } 
         });
     } catch (error: any) {
