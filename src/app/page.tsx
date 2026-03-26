@@ -35,6 +35,7 @@ export default function Home() {
   const [isProcessing, setIsProcessing] = useState<boolean>(false);
   const [isScanning, setIsScanning] = useState<boolean>(false);
   const [result, setResult] = useState<MeterUpdateResult | null>(null);
+  const [error, setError] = useState<string | null>(null);
   
   const fileInputRef = useRef<HTMLInputElement>(null);
   const downloadRef = useRef<HTMLDivElement>(null);
@@ -56,11 +57,13 @@ export default function Home() {
         body: formData,
       });
       const data = await response.json();
+      if (!response.ok) throw new Error(data.error || 'Tarama hatası');
       if (data.success && data.detectedValue) {
         setCurrentValue(data.detectedValue);
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error("Scanning Error:", err);
+      setError(err.message || "Görsel analiz edilemedi.");
     } finally {
       setIsScanning(false);
     }
@@ -98,8 +101,8 @@ export default function Home() {
       } else {
         alert(resData.error || 'İşlem sırasında hata oluştu.');
       }
-    } catch (err) {
-      alert('Sunucuya erişilemedi.');
+    } catch (err: any) {
+      setError(err.message || 'Sunucuya erişilemedi.');
     } finally {
       setIsProcessing(false);
     }
@@ -137,7 +140,7 @@ export default function Home() {
         <header className="text-center mb-12 relative">
           <div className="absolute -top-8 left-1/2 -translate-x-1/2">
             <span className="bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 px-4 py-1 rounded-full text-[10px] font-black tracking-[0.3em] uppercase animate-pulse shadow-xl shadow-indigo-500/10">
-              v4.9-PRO-LITE
+              v10.0-ULTRA-STABLE
             </span>
           </div>
           <h1 className="text-6xl font-black bg-gradient-to-r from-slate-200 via-indigo-300 to-slate-200 bg-clip-text text-transparent mb-2 drop-shadow-sm">
@@ -149,6 +152,13 @@ export default function Home() {
         <div className="glass rounded-3xl p-8 border border-slate-800 shadow-2xl relative">
           {!result ? (
             <div className={`space-y-8 ${isProcessing ? 'opacity-30 pointer-events-none' : ''}`}>
+              {/* ERROR DISPLAY */}
+              {error && (
+                <div className="bg-red-500/10 border border-red-500/50 p-4 rounded-xl text-red-400 text-sm font-bold animate-shake">
+                  ❌ HATA: {error}
+                  <button onClick={() => setError(null)} className="ml-4 underline opacity-70 hover:opacity-100">Kapat</button>
+                </div>
+              )}
               {/* UPLOAD AREA */}
               <div 
                 onClick={() => fileInputRef.current?.click()}

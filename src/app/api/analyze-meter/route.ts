@@ -16,7 +16,10 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'API Key eksik' }, { status: 500 });
     }
 
-    const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash-lite" }, { apiVersion: "v1" });
+    const model = genAI.getGenerativeModel({ 
+      model: "gemini-2.0-flash-lite",
+      generationConfig: { temperature: 0, topP: 0.1, topK: 1 } 
+    }, { apiVersion: "v1" });
     const imageData = await file.arrayBuffer();
     const base64Image = Buffer.from(imageData).toString('base64');
 
