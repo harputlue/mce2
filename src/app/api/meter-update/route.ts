@@ -42,28 +42,13 @@ export async function POST(request: Request) {
 
     const model = genAI.getGenerativeModel({ 
         model: "gemini-2.5-flash",
-        generationConfig: { temperature: 0.1, topP: 0.1, topK: 1 }
+        generationConfig: { temperature: 0.4, topP: 0.2, topK: 10 }
     }, { apiVersion: "v1" });
     const imageData = await file.arrayBuffer();
     const base64Image = Buffer.from(imageData).toString('base64');
 
+    const targetValue = finalValue;
     const prompt = `
-      OBJECTIVE: ANATOMICAL PIXEL RECONSTRUCTION (v4.0 ACTIVE)
-      
-      TASK: Perform a deep visual audit of the uploaded meter photo for 'true-analog' reconstruction.
-      
-      DETECTION (SUB-PIXEL):
-      1. WINDOW_LOC: Precisely map the coordinates of the 8-digit mechanical window including internal frame depth.
-      2. PERSPECTIVE_WARP: Detect the exact 3D tilt, rotation, and lens distortion (barrel/pincushion).
-      
-      PHYSICAL SYNC:
-      3. DRUM_ANATOMY: Identify exact pivot points where digits rotate. Identify any 'half-rolled' digits.
-      4. COLOR_GRAFTING: Sample the 'black' ink (usually weathered anthracite) and 'red' ink (faded oxide) from the existing pixel clusters.
-      5. LIGHTING_WRAP: Map the primary light source direction and glare intensity on the glass lens.
-      
-      SURFACE DECAY MAPPING:
-      6. LENS_DIRT: Detect dust motes, scratches, and grease spots on the glass surface. These must stay ABOVE the new digits.
-      7. ISO_GRAIN: Identify the sensor noise pattern (ISO/Grain) to match at the pixel level.
       
       RESPONSE JSON (MANDATORY):
       {

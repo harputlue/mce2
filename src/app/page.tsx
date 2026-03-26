@@ -140,7 +140,7 @@ export default function Home() {
         <header className="text-center mb-12 relative">
           <div className="absolute -top-8 left-1/2 -translate-x-1/2">
             <span className="bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 px-4 py-1 rounded-full text-[10px] font-black tracking-[0.3em] uppercase animate-pulse shadow-xl shadow-indigo-500/10">
-              v11.0-ULTRA-FINAL
+              v12.0-ANALOG-RECONSTRUCT
             </span>
           </div>
           <h1 className="text-6xl font-black bg-gradient-to-r from-slate-200 via-indigo-300 to-slate-200 bg-clip-text text-transparent mb-2 drop-shadow-sm">
